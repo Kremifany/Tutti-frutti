@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: tutti
+      POSTGRES_PASSWORD: tutti
+      POSTGRES_DB: tutti_frutti
+    ports:
+      - "5433:5432"
+    volumes:
+      - tutti_pg:/var/lib/postgresql/data
+
+  stripe:
+    image: stripe/stripe-cli:latest
+    env_file:
+      - .env.local
+    entrypoint: ["sh", "-c"]
+    command:
+      - exec stripe listen --api-key "$$STRIPE_SECRET_KEY" --forward-to http://host.docker.internal:3001/api/stripe/webhook --events checkout.session.completed
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+volumes:
+  tutti_pg:
