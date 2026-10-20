@@ -58,8 +58,6 @@ Copy `.env.example` to `.env.local` and fill it in:
 
 ```env
 DATABASE_URL=postgresql://tutti:tutti@localhost:5433/tutti_frutti
-BETTER_AUTH_SECRET=
-BETTER_AUTH_URL=http://localhost:3000
 OWNER_EMAIL=
 OWNER_PASSWORD=
 GOOGLE_CLIENT_ID=
