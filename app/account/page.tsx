@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+import { ArrowRight } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { authClient } from '@/lib/auth-client'
 import { classes, type ClassSlug } from '@/lib/classes'
@@ -23,6 +25,7 @@ const text = {
     hello: 'Здравствуйте',
     lead: 'Здесь имя каждого ребёнка, а под ним — его занятия и даты.',
     empty: 'Пока нет оплаченных записей.',
+    register: 'Выбрать занятие',
     children: 'Дети',
     who: 'Ребёнок',
     classLabel: 'Занятие',
@@ -37,6 +40,7 @@ const text = {
     hello: 'Hello',
     lead: 'Each child’s name is listed here, with their classes and dates underneath.',
     empty: 'No paid enrollments yet.',
+    register: 'Choose a class',
     children: 'Children',
     who: 'Child',
     classLabel: 'Class',
@@ -82,6 +86,7 @@ export default function AccountPage() {
         <p className="eyebrow">{t.eyebrow}</p>
         <h1>{t.hello},<br /><em>{data?.user.name || ''}</em></h1>
         <p className="form-lead">{t.lead}</p>
+        <Link href="/#activities" className="text-link account-classes">{t.register} <ArrowRight size={16} /></Link>
         <p className="eyebrow">{t.children}</p>
         {children.length === 0 ? <p className="form-lead">{t.empty}</p> : [...children.reduce((groups, item) => {
           const list = groups.get(item.name) || []

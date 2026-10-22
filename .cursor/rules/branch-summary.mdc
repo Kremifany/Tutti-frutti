@@ -1,0 +1,20 @@
+---
+description: Give a commit message and PR summary when a feature branch is finished
+alwaysApply: true
+---
+
+# Branch handoff
+
+When a feature branch is finished and the user has not asked to commit or open the pull request, end the reply with both of these. Do not commit or push unless they ask.
+
+Commit message: one sentence, why the change exists, in a fenced block.
+
+PR summary: markdown they can paste, with Summary and Test plan.
+
+```md
+## Summary
+- What changed and why.
+
+## Test plan
+- [ ] What to click or check.
+```
