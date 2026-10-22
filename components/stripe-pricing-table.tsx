@@ -65,6 +65,7 @@ export function StripePricingTable({ activity, publishableKey, pricingTableId, c
       if (!response.ok) return
       const list = childNames(await response.json())
       setKnown(list)
+      if (list.length === 1) setPicked(list)
       if (list.length) setNames((current) => current.length === 1 && !current[0].trim() ? [] : current)
     }).catch(() => {})
   }, [])
