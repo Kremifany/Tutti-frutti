@@ -21,7 +21,6 @@ const text = {
     passwordPlaceholder: 'Ваш пароль',
     submit: 'Войти',
     noAccount: 'Ещё нет аккаунта?',
-    register: 'Выбрать занятие',
     create: 'Зарегистрироваться',
     secure: 'Безопасный вход для родителей',
     google: 'Войти через Google',
@@ -38,7 +37,6 @@ const text = {
     passwordPlaceholder: 'Your password',
     submit: 'Sign in',
     noAccount: 'No account yet?',
-    register: 'Choose a class',
     create: 'Register',
     secure: 'A safe sign-in for parents',
     google: 'Continue with Google',
@@ -80,7 +78,7 @@ function SignInForm() {
           if (result.error) setError(t.failed)
           else router.push(next || destinationForRole(result.data?.user.role))
         }}>{t.submit} <ArrowRight size={17} /></button>
-        <p className="form-foot">{t.noAccount} {next ? <Link href={`/register?next=${encodeURIComponent(next)}`}>{t.create}</Link> : <Link href="/#activities">{t.register}</Link>}</p>
+        <p className="form-foot">{t.noAccount} <Link href={next ? `/register?next=${encodeURIComponent(next)}` : '/register'}>{t.create}</Link></p>
         <p className="secure-note"><LockKeyhole size={14} /> {t.secure}</p>
       </div>
     </main>
