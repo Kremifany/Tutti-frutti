@@ -1,5 +1,6 @@
 import { and, eq, inArray } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
+import { namesAlreadyRegistered } from '@/lib/child-names'
 import { isClassSlug } from '@/lib/classes'
 import { db } from '@/lib/db'
 import { child } from '@/lib/schema'
@@ -15,8 +16,11 @@ export async function POST(request: Request) {
   const childIds = (body?.childIds || []).filter((id) => /^[0-9a-f-]{36}$/i.test(id))
   if (!activity || !/^price_[A-Za-z0-9]+$/.test(priceId) || !childIds.length) return NextResponse.json({ error: 'missing' }, { status: 400 })
 
-  const rows = await db.select({ id: child.id }).from(child).where(and(eq(child.userId, session.user.id), inArray(child.id, childIds), eq(child.paid, false)))
+  const rows = await db.select({ id: child.id, name: child.name }).from(child).where(and(eq(child.userId, session.user.id), inArray(child.id, childIds), eq(child.paid, false)))
   if (rows.length !== childIds.length) return NextResponse.json({ error: 'missing' }, { status: 400 })
+  const paid = await db.select({ name: child.name }).from(child).where(and(eq(child.userId, session.user.id), eq(child.activity, activity), eq(child.paid, true)))
+  const registered = namesAlreadyRegistered(rows.map((row) => row.name), paid.map((row) => row.name))
+  if (registered.length) return NextResponse.json({ error: 'registered', names: registered }, { status: 409 })
   const offers = await pricingTableOffers(activity)
   if (!offers.some((offer) => offer.priceId === priceId)) return NextResponse.json({ error: 'missing' }, { status: 400 })
 

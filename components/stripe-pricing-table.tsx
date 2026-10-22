@@ -20,6 +20,7 @@ const text = {
     continue: 'Дальше к оплате',
     edit: 'Изменить имена',
     missingName: 'Введите имя ребёнка.',
+    already: (name: string) => `Ребёнок ${name} уже записан на это занятие.`,
     failed: 'Не удалось сохранить имена.',
     missing: 'Таблица цен Stripe для этого занятия ещё не подключена.',
     opening: 'Открываем оплату…',
@@ -37,6 +38,7 @@ const text = {
     continue: 'Continue to payment',
     edit: 'Edit names',
     missingName: 'Enter the child’s name.',
+    already: (name: string) => `The child ${name} already registered for that activity.`,
     failed: 'Could not save the names.',
     missing: 'The Stripe pricing table for this class is not connected yet.',
     opening: 'Opening payment…',
@@ -74,8 +76,14 @@ export function StripePricingTable({ activity, publishableKey, pricingTableId, c
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ activity, priceId, childIds: saved.map((item) => item.id) }),
     }).then(async (response) => {
-      const payload = await response.json().catch(() => null) as { url?: string } | null
+      const payload = await response.json().catch(() => null) as { url?: string; names?: string[] } | null
       if (!active) return
+      if (response.status === 409 && payload?.names?.length) {
+        setSaved(null)
+        setError(payload.names.map((name) => t.already(name)).join(' '))
+        setBusy(false)
+        return
+      }
       if (!response.ok || !payload?.url) {
         setError(t.failed)
         setBusy(false)
@@ -88,7 +96,7 @@ export function StripePricingTable({ activity, publishableKey, pricingTableId, c
       setBusy(false)
     })
     return () => { active = false }
-  }, [saved, priceId, activity, t.failed])
+  }, [saved, priceId, activity, t.failed, t.already])
 
   const toggleChild = (name: string) => {
     setPicked((current) => {
@@ -117,6 +125,12 @@ export function StripePricingTable({ activity, publishableKey, pricingTableId, c
               body: JSON.stringify({ names: chosen, activity }),
             })
             setBusy(false)
+            if (response.status === 409) {
+              const payload = await response.json().catch(() => null) as { names?: string[] } | null
+              const registered = payload?.names?.length ? payload.names : chosen
+              setError(registered.map((name) => t.already(name)).join(' '))
+              return
+            }
             if (!response.ok) {
               setError(t.failed)
               return

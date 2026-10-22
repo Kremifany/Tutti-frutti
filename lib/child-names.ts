@@ -11,3 +11,8 @@ export function childNames(value: unknown) {
   }
   return names
 }
+
+export function namesAlreadyRegistered(chosen: string[], registered: string[]) {
+  const taken = registered.map((name) => name.trim().toLowerCase())
+  return chosen.filter((name) => taken.includes(name.toLowerCase()))
+}
