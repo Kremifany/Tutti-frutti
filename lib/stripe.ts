@@ -21,37 +21,6 @@ export function stripeClient() {
   return new Stripe(key)
 }
 
-export type ClassPrice = {
-  priceId: string
-  name: string
-  startsAt: string | null
-  amount: number | null
-  currency: string
-}
-
-export async function classPrices(activity: ClassSlug): Promise<ClassPrice[]> {
-  const stripe = stripeClient()
-  if (!stripe) return []
-  const prices = await stripe.prices.list({ active: true, limit: 100, expand: ['data.product'] })
-  const rows: ClassPrice[] = []
-  for (const price of prices.data) {
-    const product = price.product
-    if (!product || typeof product === 'string' || product.deleted || product.active === false) continue
-    const purchase = purchaseFromProduct(product, price.unit_amount, activity)
-    if (purchase.activity !== activity) continue
-    if (purchase.startsAt && purchase.startsAt.getTime() <= Date.now()) continue
-    rows.push({
-      priceId: price.id,
-      name: purchase.name,
-      startsAt: purchase.startsAt ? purchase.startsAt.toISOString() : null,
-      amount: price.unit_amount,
-      currency: price.currency,
-    })
-  }
-  rows.sort((a, b) => (a.startsAt || '9999').localeCompare(b.startsAt || '9999'))
-  return rows
-}
-
 const months: Record<string, number> = {
   января: 0, февраля: 1, марта: 2, апреля: 3, мая: 4, июня: 5, июля: 6, августа: 7, сентября: 8, октября: 9, ноября: 10, декабря: 11,
   январь: 0, февраль: 1, март: 2, апрель: 3, май: 4, июнь: 5, июль: 6, август: 7, сентябрь: 8, октябрь: 9, ноябрь: 10, декабрь: 11,
