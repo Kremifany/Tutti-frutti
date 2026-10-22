@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { and, eq, isNull } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
-import { childNames } from '@/lib/child-names'
+import { childNames, namesAlreadyRegistered } from '@/lib/child-names'
 import { CLASS_PRICE, classDateFromChoice, isClassSlug } from '@/lib/classes'
 import { db } from '@/lib/db'
 import { child, product } from '@/lib/schema'
@@ -28,6 +28,9 @@ export async function POST(request: Request) {
     const activity = body.activity && isClassSlug(body.activity) ? body.activity : null
     const names = childNames(body.names)
     if (!activity || !names.length) return NextResponse.json({ error: 'missing' }, { status: 400 })
+    const paid = await db.select({ name: child.name }).from(child).where(and(eq(child.userId, session.user.id), eq(child.activity, activity), eq(child.paid, true)))
+    const registered = namesAlreadyRegistered(names, paid.map((row) => row.name))
+    if (registered.length) return NextResponse.json({ error: 'registered', names: registered }, { status: 409 })
     await db.delete(child).where(and(eq(child.userId, session.user.id), eq(child.activity, activity), eq(child.paid, false), isNull(child.stripeSessionId)))
     const rows = []
     for (const name of names) {
