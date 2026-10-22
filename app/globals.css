@@ -88,3 +88,4 @@
 .row-skeleton .dot{width:34px;height:34px;flex:none;border-radius:50%}
 @keyframes skeleton-shimmer{from{background-position:100% 0}to{background-position:0 0}}
 @media(prefers-reduced-motion:reduce){.skeleton{animation:none}}
+.account-classes{margin:0 0 28px}
