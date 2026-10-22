@@ -26,6 +26,7 @@ const text = {
     google: 'Продолжить с Google',
     googleUnavailable: 'Google ещё не подключён. Добавьте ключи в .env.local.',
     failed: 'Не удалось создать аккаунт. Проверьте данные или войдите.',
+    shortPassword: 'Пароль слишком короткий. Нужно минимум 8 символов.',
     chooseClass: 'Сначала выберите занятие',
     chooseLead: 'Запись начинается на странице занятия.',
   },
@@ -45,6 +46,7 @@ const text = {
     google: 'Continue with Google',
     googleUnavailable: 'Google is not connected yet. Add the keys to .env.local.',
     failed: 'Could not create the account. Check the details or sign in.',
+    shortPassword: 'Password is too short. Use at least 8 characters.',
     chooseClass: 'Choose a class first',
     chooseLead: 'Registration starts on the class page.',
   },
@@ -100,9 +102,17 @@ function RegisterForm() {
         <button className="primary-button form-button" disabled={busy} onClick={async () => {
           setBusy(true)
           setError('')
+          if (password.length < 8) {
+            setError(t.shortPassword)
+            setBusy(false)
+            return
+          }
           const result = await authClient.signUp.email({ email, password, name })
           setBusy(false)
-          if (result.error) setError(t.failed)
+          const authError = result.error
+          const tooShort = authError?.code === 'PASSWORD_TOO_SHORT' || /too short/i.test(authError?.message || '')
+          if (tooShort) setError(t.shortPassword)
+          else if (authError) setError(t.failed)
           else router.push(destination)
         }}>{t.continue} <ArrowRight size={17} /></button>
         <p className="form-foot">{t.haveAccount} <Link href={`/sign-in?next=${encodeURIComponent(destination)}`}>{t.signIn}</Link></p>
