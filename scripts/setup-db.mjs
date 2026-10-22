@@ -1,11 +1,14 @@
 import { randomUUID } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import pg from 'pg'
 import { hashPassword } from 'better-auth/crypto'
 
-for (const line of readFileSync(new URL('../.env.local', import.meta.url), 'utf8').split(/\r?\n/)) {
-  const match = line.match(/^([^#=]+)=(.*)$/)
-  if (match) process.env[match[1].trim()] = match[2].trim()
+const envFile = new URL('../.env.local', import.meta.url)
+if (existsSync(envFile)) {
+  for (const line of readFileSync(envFile, 'utf8').split(/\r?\n/)) {
+    const match = line.match(/^([^#=]+)=(.*)$/)
+    if (match) process.env[match[1].trim()] = match[2].trim()
+  }
 }
 
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL })

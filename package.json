@@ -7,7 +7,7 @@
     "dev": "next dev",
     "db:up": "docker compose up -d",
     "db:setup": "node scripts/setup-db.mjs",
-    "build": "next build",
+    "build": "node scripts/setup-db.mjs && next build",
     "start": "next start"
   },
   "dependencies": {
