@@ -39,6 +39,13 @@ export const auth = betterAuth({
       clientSecret: googleSecret,
     },
   } : undefined,
+  account: googleId && googleSecret ? {
+    accountLinking: {
+      enabled: true,
+      trustedProviders: ['google'],
+      requireLocalEmailVerified: false,
+    },
+  } : undefined,
   user: {
     additionalFields: {
       role: {

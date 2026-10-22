@@ -28,7 +28,7 @@ const text = {
     failed: 'Не удалось создать аккаунт. Проверьте данные или войдите.',
     shortPassword: 'Пароль слишком короткий. Нужно минимум 8 символов.',
     chooseClass: 'Сначала выберите занятие',
-    chooseLead: 'Запись начинается на странице занятия.',
+    chooseLead: 'Можно зарегистрироваться через Google, или начать запись на странице занятия.',
   },
   en: {
     enroll: 'Enroll in a class',
@@ -48,7 +48,7 @@ const text = {
     failed: 'Could not create the account. Check the details or sign in.',
     shortPassword: 'Password is too short. Use at least 8 characters.',
     chooseClass: 'Choose a class first',
-    chooseLead: 'Registration starts on the class page.',
+    chooseLead: 'You can register with Google, or start from a class page.',
   },
 }
 
@@ -82,6 +82,7 @@ function RegisterForm() {
           <p className="eyebrow">{t.enroll}</p>
           <h1>{t.chooseClass}</h1>
           <p className="form-lead">{t.chooseLead}</p>
+          <GoogleButton label={t.google} unavailable={t.googleUnavailable} callbackURL="/auth/continue" />
           {openClasses.map((slug) => <Link key={slug} href={`/activities/${slug}`} className="primary-button form-button">{classes[slug][lang]} <ArrowRight size={17} /></Link>)}
         </div>
       </main>
