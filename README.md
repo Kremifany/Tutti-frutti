@@ -107,10 +107,10 @@ For a hosted database, set `DATABASE_URL` to that database and run `pnpm db:setu
 
 1. In the Stripe Dashboard, each class date is a product. Put the date in the product name, for example `Расти 21.10.2026`.
 2. Add those products to a pricing table, one table per class, and put each table id in `.env.local`.
-3. A parent opens a class, signs in, enters the child's name, and pays through the Stripe pricing table.
-4. The webhook `checkout.session.completed` saves the paid registration under the child's name. The parent account and the owner dashboard show it on the next visit.
+3. A parent opens a class, signs in, enters the child's name, chooses a date, and pays in Stripe.
+4. Stripe sends the parent to `/account`. The webhook `checkout.session.completed` saves the paid registration under the child's name. The parent account and the owner dashboard show it on the next visit.
 
-The pricing table confirmation page should return the parent to `/account`. For local webhook testing:
+For local webhook testing:
 
 ```bash
 stripe listen --forward-to localhost:3000/api/stripe/webhook
