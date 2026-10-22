@@ -14,7 +14,6 @@ export async function GET() {
     email: user.email,
     activity: child.activity,
     startsAt: child.startsAt,
-    amount: child.amount,
     paid: child.paid,
   }).from(child).innerJoin(user, eq(child.userId, user.id)).where(eq(child.paid, true)).orderBy(desc(child.createdAt))
   return NextResponse.json(rows)

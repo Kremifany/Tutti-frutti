@@ -1,5 +1,3 @@
-export const CLASS_PRICE = 1500
-
 export const classes = {
   'live-letters': { ru: 'Живые буквы', en: 'Live Letters', weekday: 1, time: '18:00' },
   grow: { ru: 'Расти', en: 'Grow', weekday: 3, time: '17:45' },

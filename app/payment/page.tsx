@@ -7,7 +7,7 @@ import { Suspense, useEffect, useState } from 'react'
 import { useLang } from '@/components/language'
 import { authClient } from '@/lib/auth-client'
 import { childNames } from '@/lib/child-names'
-import { CLASS_PRICE, classes, isClassSlug, paymentPath, upcomingClassDates, type ClassSlug } from '@/lib/classes'
+import { classes, isClassSlug, paymentPath, upcomingClassDates, type ClassSlug } from '@/lib/classes'
 
 const text = {
   ru: {
@@ -113,7 +113,7 @@ function PaymentForm() {
           {names.map((name, index) => <div className="child-row" key={index}><label>{t.child} {names.length > 1 ? index + 1 : ''}<input value={name} onChange={(event) => setNames(names.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} placeholder={t.childPlaceholder} /></label>{names.length > 1 && <button type="button" className="link-button" onClick={() => setNames(names.filter((_, itemIndex) => itemIndex !== index))}>{t.remove}</button>}</div>)}
           {names.length < 3 && <button type="button" className="link-button" onClick={() => setNames([...names, ''])}>{t.add}</button>}
           <label>{t.date}<select value={classDate} onChange={(event) => setClassDate(event.target.value)}>{dates.map((value) => <option key={value} value={value}>{formatDay(value, lang)}</option>)}</select></label>
-          <div className="order-line"><span>{program}{classDate ? ` · ${formatDay(classDate, lang)}` : ''}</span><strong>{CLASS_PRICE.toLocaleString(lang === 'en' ? 'en-US' : 'ru-RU')} ₽</strong></div>
+          <div className="order-line"><span>{program}{classDate ? ` · ${formatDay(classDate, lang)}` : ''}</span></div>
           {error && <p className="form-error">{error}</p>}
           <button className="primary-button form-button" disabled={busy || !classDate || !session} onClick={async () => {
             const chosen = childNames(names)
