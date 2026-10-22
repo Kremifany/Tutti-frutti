@@ -57,12 +57,28 @@ function when(value: string, lang: 'ru' | 'en') {
   return new Intl.DateTimeFormat(lang === 'en' ? 'en-US' : 'ru-RU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(value))
 }
 
+function SkeletonRows({ avatars = false }: { avatars?: boolean }) {
+  return (
+    <>
+      {[0, 1, 2].map((index) => (
+        <div className="row-skeleton" key={index} aria-hidden="true">
+          {avatars && <span className="skeleton dot" />}
+          <div><span className="skeleton wide" /><span className="skeleton short" /></div>
+          <span className="skeleton pill" />
+        </div>
+      ))}
+    </>
+  )
+}
+
 export default function DashboardPage() {
   const { lang } = useLang()
   const t = text[lang]
-  const [purchases, setPurchases] = useState<Purchase[]>([])
-  const people = new Set(purchases.map((item) => item.child || item.parent)).size
-  const byDate = [...purchases.reduce((groups, item) => {
+  const [purchases, setPurchases] = useState<Purchase[] | null>(null)
+  const loading = purchases === null
+  const rows = purchases ?? []
+  const people = new Set(rows.map((item) => item.child || item.parent)).size
+  const byDate = [...rows.reduce((groups, item) => {
     const activity = item.activity && item.activity in classes ? classes[item.activity as ClassSlug][lang] : item.activity || t.unknown
     const date = item.startsAt ? when(item.startsAt, lang) : t.unknown
     const key = `${activity}|${date}`
@@ -73,9 +89,12 @@ export default function DashboardPage() {
   }, new Map<string, { activity: string; date: string; count: number }>()).values()]
 
   useEffect(() => {
+    let active = true
     fetch('/api/enrollments').then(async (response) => {
-      if (response.ok) setPurchases(await response.json())
-    }).catch(() => {})
+      if (!active) return
+      setPurchases(response.ok ? await response.json() : [])
+    }).catch(() => { if (active) setPurchases([]) })
+    return () => { active = false }
   }, [])
 
   return (
@@ -90,21 +109,21 @@ export default function DashboardPage() {
         </nav>
         <Link href="/" className="back-link"><ArrowLeft size={15} /> {t.back}</Link>
       </aside>
-      <section className="dashboard-main">
+      <section className="dashboard-main" aria-busy={loading}>
         <header className="dashboard-header"><div><p className="eyebrow">{t.owner}</p><h1>{t.hello}</h1></div><div className="owner-avatar">К</div></header>
         <div className="stats-grid">
-          <div><span>{t.people}</span><strong>{people}</strong></div>
-          <div><span>{t.registrations}</span><strong>{purchases.length}</strong></div>
-          <div><span>{t.dates}</span><strong>{byDate.length}</strong></div>
+          <div><span>{t.people}</span>{loading ? <span className="skeleton stat-skeleton" /> : <strong>{people}</strong>}</div>
+          <div><span>{t.registrations}</span>{loading ? <span className="skeleton stat-skeleton" /> : <strong>{rows.length}</strong>}</div>
+          <div><span>{t.dates}</span>{loading ? <span className="skeleton stat-skeleton" /> : <strong>{byDate.length}</strong>}</div>
         </div>
         <div className="dashboard-grid">
           <div className="dash-panel">
             <div className="panel-head"><div><p className="eyebrow">{t.paid}</p><h2>{t.byDate}</h2></div></div>
-            {byDate.length === 0 ? <p className="form-lead">{t.empty}</p> : byDate.map((group) => <div className="schedule-row" key={`${group.activity}-${group.date}`}><div><strong>{group.date}</strong><small>{group.activity}</small></div><span className="status-pill">{group.count} {peopleWord(group.count, lang)}</span></div>)}
+            {loading ? <SkeletonRows /> : byDate.length === 0 ? <p className="form-lead">{t.empty}</p> : byDate.map((group) => <div className="schedule-row" key={`${group.activity}-${group.date}`}><div><strong>{group.date}</strong><small>{group.activity}</small></div><span className="status-pill">{group.count} {peopleWord(group.count, lang)}</span></div>)}
           </div>
           <div className="dash-panel">
             <div className="panel-head"><div><p className="eyebrow">{t.paid}</p><h2>{t.who}</h2></div></div>
-            {purchases.length === 0 ? <p className="form-lead">{t.empty}</p> : purchases.map((item) => {
+            {loading ? <SkeletonRows avatars /> : rows.length === 0 ? <p className="form-lead">{t.empty}</p> : rows.map((item) => {
               const activity = item.activity && item.activity in classes ? classes[item.activity as ClassSlug][lang] : item.activity || t.unknown
               const detail = [activity, item.startsAt ? when(item.startsAt, lang) : t.unknown].join(' · ')
               const registered = item.child || item.parent
