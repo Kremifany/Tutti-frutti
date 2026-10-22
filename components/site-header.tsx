@@ -5,6 +5,7 @@ import { ArrowRight, Menu, Moon, Sun, X } from 'lucide-react'
 import { useEffect, useState, type MouseEvent } from 'react'
 import { useLang } from '@/components/language'
 import { authClient } from '@/lib/auth-client'
+import { pauseOwnerGoogle } from '@/components/owner-google'
 import { destinationForRole } from '@/lib/roles'
 
 const text = {
@@ -82,7 +83,7 @@ export function SiteHeader() {
           <Link href="/#activities" onClick={(event) => goToSection(event, 'activities')}>{t.projects}</Link>
           <Link href="/#about" onClick={(event) => goToSection(event, 'about')}>{t.about}</Link>
           <Link href="/#contact" onClick={(event) => goToSection(event, 'contact')}>{t.contact}</Link>
-          {session ? <><Link href={destinationForRole(session.user.role)} className="nav-login" onClick={() => setMenuOpen(false)}>{t.account} <ArrowRight size={15} /></Link><button className="nav-text" type="button" onClick={() => authClient.signOut().then(() => { window.location.href = '/' })}>{t.signOut}</button></> : <Link href="/sign-in" className="nav-login" onClick={() => setMenuOpen(false)}>{t.signIn} <ArrowRight size={15} /></Link>}
+          {session ? <><Link href={destinationForRole(session.user.role)} className="nav-login" onClick={() => setMenuOpen(false)}>{t.account} <ArrowRight size={15} /></Link><button className="nav-text" type="button" onClick={() => authClient.signOut().then(() => { pauseOwnerGoogle(); window.location.href = '/' })}>{t.signOut}</button></> : <Link href="/sign-in" className="nav-login" onClick={() => setMenuOpen(false)}>{t.signIn} <ArrowRight size={15} /></Link>}
           <button className="theme-switch" type="button" onClick={() => setDarkMode((value) => !value)} aria-label={darkMode ? t.themeLight : t.themeDark}>{darkMode ? <Sun size={15} /> : <Moon size={15} />}</button>
           <div className="lang-switch" role="group" aria-label={t.language}>
             <button type="button" className={lang === 'ru' ? 'is-active' : ''} onClick={() => setLang('ru')}>RU</button>
