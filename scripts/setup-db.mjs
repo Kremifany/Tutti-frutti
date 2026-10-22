@@ -84,9 +84,9 @@ for (const [slug, weekday, hours, minutes, name] of schedule) {
     const day = String(date.getDate()).padStart(2, '0')
     const id = `${slug}-${date.getFullYear()}-${month}-${day}`
     await pool.query(
-      `insert into product (id, activity, name, starts_at, amount, active)
-       values ($1, $2, $3, $4, 1500, true)
-       on conflict (id) do update set name = excluded.name, starts_at = excluded.starts_at, amount = excluded.amount, active = true`,
+      `insert into product (id, activity, name, starts_at, active)
+       values ($1, $2, $3, $4, true)
+       on conflict (id) do update set name = excluded.name, starts_at = excluded.starts_at, active = true`,
       [id, slug, name, date],
     )
   }

@@ -55,14 +55,12 @@ CREATE TABLE IF NOT EXISTS child (
   notes text,
   activity text,
   starts_at timestamptz,
-  amount integer,
   paid boolean NOT NULL DEFAULT false,
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
 ALTER TABLE child ADD COLUMN IF NOT EXISTS activity text;
 ALTER TABLE child ADD COLUMN IF NOT EXISTS starts_at timestamptz;
-ALTER TABLE child ADD COLUMN IF NOT EXISTS amount integer;
 ALTER TABLE child ADD COLUMN IF NOT EXISTS paid boolean NOT NULL DEFAULT false;
 
 CREATE TABLE IF NOT EXISTS product (
@@ -70,14 +68,15 @@ CREATE TABLE IF NOT EXISTS product (
   activity text NOT NULL,
   name text NOT NULL,
   starts_at timestamptz NOT NULL,
-  amount integer NOT NULL,
   stripe_product_id text,
-  stripe_price_id text,
   active boolean NOT NULL DEFAULT true
 );
 
 ALTER TABLE child ADD COLUMN IF NOT EXISTS product_id text REFERENCES product(id);
-ALTER TABLE child ADD COLUMN IF NOT EXISTS currency text;
+ALTER TABLE child DROP COLUMN IF EXISTS amount;
+ALTER TABLE child DROP COLUMN IF EXISTS currency;
+ALTER TABLE product DROP COLUMN IF EXISTS amount;
+ALTER TABLE product DROP COLUMN IF EXISTS stripe_price_id;
 ALTER TABLE child ADD COLUMN IF NOT EXISTS stripe_session_id text;
 ALTER TABLE child ADD COLUMN IF NOT EXISTS stripe_product_id text;
 CREATE UNIQUE INDEX IF NOT EXISTS child_stripe_purchase_name_idx ON child (stripe_session_id, stripe_product_id, name);

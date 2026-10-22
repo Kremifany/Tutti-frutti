@@ -101,7 +101,7 @@ function activityInText(text: string) {
   return found || null
 }
 
-export function purchaseFromProduct(product: { name?: string | null; description?: string | null; metadata?: Stripe.Metadata | null }, unitAmount: number | null, activityHint?: string | null) {
+export function purchaseFromProduct(product: { name?: string | null; description?: string | null; metadata?: Stripe.Metadata | null }, activityHint?: string | null) {
   const metadata = product.metadata || {}
   const text = [product.name, product.description, ...Object.values(metadata)].filter(Boolean).join(' ')
   const activity = (metadata.activity && isClassSlug(metadata.activity) ? metadata.activity : null) || activityInText(text) || (activityHint && isClassSlug(activityHint) ? activityHint : null)
@@ -116,6 +116,5 @@ export function purchaseFromProduct(product: { name?: string | null; description
     activity,
     startsAt,
     name: product.name || (activity ? classes[activity].ru : 'Занятие'),
-    amount: unitAmount == null ? null : Math.round(unitAmount / 100),
   }
 }

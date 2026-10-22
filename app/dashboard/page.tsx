@@ -41,7 +41,7 @@ const text = {
   },
 }
 
-type Purchase = { id: string; parent: string; child?: string; activity: string | null; startsAt: string | null; amount: number | null }
+type Purchase = { id: string; parent: string; child?: string; activity: string | null; startsAt: string | null }
 
 function peopleWord(count: number, lang: 'ru' | 'en') {
   if (lang === 'en') return count === 1 ? 'person' : 'people'

@@ -14,8 +14,6 @@ type ChildRow = {
   notes: string | null
   activity: string | null
   startsAt: string | null
-  amount: number | null
-  currency: string | null
   paid: boolean
 }
 
@@ -50,11 +48,6 @@ const text = {
     unpaid: 'Stripe payment later',
     unknown: 'Not set',
   },
-}
-
-function money(amount: number, currency: string | null, lang: 'ru' | 'en') {
-  if ((currency || '').toLowerCase() === 'usd') return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
-  return `${new Intl.NumberFormat(lang === 'en' ? 'en-US' : 'ru-RU').format(amount)} ₽`
 }
 
 function when(value: string, lang: 'ru' | 'en') {
@@ -103,7 +96,7 @@ export default function AccountPage() {
                 <li key={item.id}>
                   <strong>{t.classLabel}: {activity}</strong>
                   <span>{t.dateLabel}: {item.startsAt ? when(item.startsAt, lang) : t.unknown}</span>
-                  <span>{t.payment}: {item.amount != null ? money(item.amount, item.currency, lang) : t.unknown} · {item.paid ? t.paid : t.unpaid}</span>
+                  <span>{item.paid ? t.paid : t.unpaid}</span>
                   {item.notes && <small>{item.notes}</small>}
                 </li>
               )

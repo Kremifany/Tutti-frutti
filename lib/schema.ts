@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
+import { boolean, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
 
 export const user = pgTable('user', {
   id: text('id').primaryKey(),
@@ -52,9 +52,7 @@ export const product = pgTable('product', {
   activity: text('activity').notNull(),
   name: text('name').notNull(),
   startsAt: timestamp('starts_at', { withTimezone: true }).notNull(),
-  amount: integer('amount').notNull(),
   stripeProductId: text('stripe_product_id'),
-  stripePriceId: text('stripe_price_id'),
   active: boolean('active').notNull().default(true),
 })
 
@@ -67,8 +65,6 @@ export const child = pgTable('child', {
   activity: text('activity'),
   productId: text('product_id').references(() => product.id),
   startsAt: timestamp('starts_at', { withTimezone: true }),
-  amount: integer('amount'),
-  currency: text('currency'),
   paid: boolean('paid').notNull().default(false),
   stripeSessionId: text('stripe_session_id'),
   stripeProductId: text('stripe_product_id'),

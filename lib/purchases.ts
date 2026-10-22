@@ -29,7 +29,7 @@ export async function saveCheckoutSession(checkout: Stripe.Checkout.Session) {
     const price = item.price
     const product = price?.product && typeof price.product !== 'string' ? price.product : null
     if (!product || product.deleted) continue
-    const purchase = purchaseFromProduct(product, price?.unit_amount ?? checkout.amount_total, activityHint)
+    const purchase = purchaseFromProduct(product, activityHint)
     const activity = purchase.activity || (activityHint && isClassSlug(activityHint) ? activityHint : null)
     if (!hasChildList) {
       const [existing] = await db.select({ id: child.id }).from(child).where(and(eq(child.stripeSessionId, checkout.id), eq(child.stripeProductId, product.id)))
@@ -41,8 +41,6 @@ export async function saveCheckoutSession(checkout: Stripe.Checkout.Session) {
         age: '—',
         activity,
         startsAt: purchase.startsAt,
-        amount: purchase.amount,
-        currency: price?.currency || checkout.currency || 'usd',
         paid: true,
         stripeSessionId: checkout.id,
         stripeProductId: product.id,
@@ -59,8 +57,6 @@ export async function saveCheckoutSession(checkout: Stripe.Checkout.Session) {
         age: '—',
         activity,
         startsAt: purchase.startsAt,
-        amount: purchase.amount,
-        currency: price?.currency || checkout.currency || 'usd',
         paid: true,
         stripeSessionId: checkout.id,
         stripeProductId: product.id,

@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { and, eq, isNull } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
 import { childNames, namesAlreadyRegistered } from '@/lib/child-names'
-import { CLASS_PRICE, classDateFromChoice, isClassSlug } from '@/lib/classes'
+import { classDateFromChoice, isClassSlug } from '@/lib/classes'
 import { db } from '@/lib/db'
 import { child, product } from '@/lib/schema'
 import { importPaidCheckouts } from '@/lib/purchases'
@@ -61,7 +61,6 @@ export async function POST(request: Request) {
       activity: item.activity,
       productId: item.id,
       startsAt: item.startsAt,
-      amount: item.amount,
       paid: false,
     }).returning()
     return NextResponse.json(row)
@@ -79,7 +78,6 @@ export async function POST(request: Request) {
     notes: body?.notes?.trim() || null,
     activity,
     startsAt,
-    amount: CLASS_PRICE,
     paid: body?.paid === true,
   }).returning()
   return NextResponse.json(row)
