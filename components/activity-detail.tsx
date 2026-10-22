@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { ArrowRight, Check } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ScrollToTop } from '@/components/scroll-to-top'
 import { StoryCarousel, firstFutureStoryIndex } from '@/components/story-carousel'
 import { useLang } from '@/components/language'
@@ -142,6 +142,19 @@ const data = {
   },
 } as const
 
+type Offer = { priceId: string; name: string; startsAt: string | null; amount: number; currency: string }
+
+function offerText(offer: Offer, lang: 'ru' | 'en') {
+  const money = new Intl.NumberFormat(lang === 'en' ? 'en-US' : 'ru-RU', { style: 'currency', currency: offer.currency.toUpperCase() }).format(offer.amount / 100)
+  if (!offer.startsAt) return { when: offer.name, detail: money }
+  const date = new Date(offer.startsAt)
+  const locale = lang === 'en' ? 'en-US' : 'ru-RU'
+  return {
+    when: new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long' }).format(date),
+    detail: `${new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }).format(date)} · ${money}`,
+  }
+}
+
 export function ActivityDetail({ slug }: { slug: string }) {
   const { lang } = useLang()
   const { data: session } = authClient.useSession()
@@ -149,9 +162,20 @@ export function ActivityDetail({ slug }: { slug: string }) {
   const copy = item[lang]
   const story = slug === 'storytelling'
   const [storyIndex, setStoryIndex] = useState(firstFutureStoryIndex)
+  const [offers, setOffers] = useState<Offer[] | null>(null)
   const register = isClassSlug(slug) ? checkoutPath(slug) : '/#activities'
   const href = session || !isClassSlug(slug) ? register : `/sign-in?next=${encodeURIComponent(register)}`
   const label = lang === 'en' ? 'To register' : 'Записаться'
+
+  useEffect(() => {
+    if (!isClassSlug(slug)) return
+    let active = true
+    fetch(`/api/stripe/dates?activity=${slug}`).then(async (response) => {
+      if (!active) return
+      setOffers(response.ok ? await response.json() : [])
+    }).catch(() => { if (active) setOffers([]) })
+    return () => { active = false }
+  }, [slug])
 
   return (
     <main className="detail-page">
@@ -161,7 +185,21 @@ export function ActivityDetail({ slug }: { slug: string }) {
         <p className="eyebrow">{copy.en}</p>
         <h1>{copy.title}</h1>
         <p className="detail-intro">{copy.intro}</p>
-        {!story && <Link className="primary-button" href={href}>{label} <ArrowRight size={17} /></Link>}
+        {!story && (offers && offers.length > 0 ? (
+          <div className="date-offers">
+            {offers.map((offer) => {
+              const next = isClassSlug(slug) ? `${checkoutPath(slug)}&price=${offer.priceId}` : href
+              const offerHref = session ? next : `/sign-in?next=${encodeURIComponent(next)}`
+              const text = offerText(offer, lang)
+              return (
+                <div className="date-offer" key={offer.priceId}>
+                  <div><strong>{text.when}</strong><span>{text.detail}</span></div>
+                  <Link className="primary-button" href={offerHref}>{label} <ArrowRight size={17} /></Link>
+                </div>
+              )
+            })}
+          </div>
+        ) : offers === null ? null : <Link className="primary-button" href={href}>{label} <ArrowRight size={17} /></Link>)}
       </section>
       <section className="detail-content">
         <div><p className="eyebrow">{copy.section}</p><h2>{copy.headingA}<br /><em>{copy.headingB}</em></h2></div>

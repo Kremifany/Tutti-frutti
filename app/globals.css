@@ -72,3 +72,9 @@
 .child-block h2{font-size:32px;margin:10px 0}
 .child-block ul{list-style:none;padding:0;margin:0}
 .child-block li{display:flex;flex-direction:column;gap:3px;padding:10px 0 10px 14px;border-left:2px solid var(--coral)}
+.date-offers{display:flex;flex-direction:column;gap:12px;margin-top:22px}
+.date-offer{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--paper)}
+.date-offer strong{display:block}
+.date-offer span{color:var(--muted)}
+.date-offer .primary-button{margin-top:0;white-space:nowrap}
+@media(max-width:760px){.date-offer{align-items:flex-start;flex-direction:column}}

@@ -34,7 +34,10 @@ export function safeNextPath(value: string | null) {
   if (url.pathname === '/payment' || url.pathname === '/checkout') {
     const activity = url.searchParams.get('activity') || ''
     if (!isClassSlug(activity)) return null
-    return url.pathname === '/checkout' ? checkoutPath(activity) : paymentPath(activity)
+    if (url.pathname !== '/checkout') return paymentPath(activity)
+    const price = url.searchParams.get('price') || ''
+    if (!/^price_[A-Za-z0-9]+$/.test(price)) return checkoutPath(activity)
+    return `${checkoutPath(activity)}&price=${price}`
   }
   const match = url.pathname.match(/^\/activities\/([a-z0-9-]+)$/)
   if (!match || !isClassSlug(match[1])) return null

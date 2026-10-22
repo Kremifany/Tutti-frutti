@@ -22,6 +22,7 @@ const text = {
     missingName: 'Введите имя ребёнка.',
     failed: 'Не удалось сохранить имена.',
     missing: 'Таблица цен Stripe для этого занятия ещё не подключена.',
+    opening: 'Открываем оплату…',
   },
   en: {
     eyebrow: 'Registration',
@@ -38,10 +39,11 @@ const text = {
     missingName: 'Enter the child’s name.',
     failed: 'Could not save the names.',
     missing: 'The Stripe pricing table for this class is not connected yet.',
+    opening: 'Opening payment…',
   },
 }
 
-export function StripePricingTable({ activity, publishableKey, pricingTableId, clientReferenceId, customerEmail }: { activity: ClassSlug; publishableKey: string; pricingTableId: string; clientReferenceId: string; customerEmail: string }) {
+export function StripePricingTable({ activity, publishableKey, pricingTableId, clientReferenceId, customerEmail, priceId = '' }: { activity: ClassSlug; publishableKey: string; pricingTableId: string; clientReferenceId: string; customerEmail: string; priceId?: string }) {
   const { lang } = useLang()
   const t = text[lang]
   const ready = Boolean(publishableKey && pricingTableId)
@@ -63,6 +65,30 @@ export function StripePricingTable({ activity, publishableKey, pricingTableId, c
       if (list.length) setNames((current) => current.length === 1 && !current[0].trim() ? [] : current)
     }).catch(() => {})
   }, [])
+
+  useEffect(() => {
+    if (!saved || !priceId) return
+    let active = true
+    fetch('/api/stripe/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ activity, priceId, childIds: saved.map((item) => item.id) }),
+    }).then(async (response) => {
+      const payload = await response.json().catch(() => null) as { url?: string } | null
+      if (!active) return
+      if (!response.ok || !payload?.url) {
+        setError(t.failed)
+        setBusy(false)
+        return
+      }
+      window.location.href = payload.url
+    }).catch(() => {
+      if (!active) return
+      setError(t.failed)
+      setBusy(false)
+    })
+    return () => { active = false }
+  }, [saved, priceId, activity, t.failed])
 
   const toggleChild = (name: string) => {
     setPicked((current) => {
@@ -118,7 +144,7 @@ export function StripePricingTable({ activity, publishableKey, pricingTableId, c
           </form>
         ) : <>
           <div className="child-chips">{saved.map((item) => <span key={item.id}>{item.name}</span>)}<button type="button" className="link-button" onClick={() => setSaved(null)}>{t.edit}</button></div>
-          {ready ? <>
+          {priceId ? <p className="form-lead">{error || t.opening}</p> : ready ? <>
             <Script src="https://js.stripe.com/v3/pricing-table.js" strategy="afterInteractive" />
             {createElement('stripe-pricing-table', {
               'pricing-table-id': pricingTableId,

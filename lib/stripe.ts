@@ -21,6 +21,43 @@ export function stripeClient() {
   return new Stripe(key)
 }
 
+export type ClassOffer = {
+  priceId: string
+  name: string
+  startsAt: string | null
+  amount: number
+  currency: string
+}
+
+export async function pricingTableOffers(activity: ClassSlug): Promise<ClassOffer[]> {
+  const secret = process.env.STRIPE_SECRET_KEY
+  const { pricingTableId, configured } = pricingTableFor(activity)
+  if (!secret || !configured) return []
+  const response = await fetch(`https://api.stripe.com/v1/pricing_tables/${pricingTableId}`, {
+    headers: { Authorization: `Bearer ${secret}` },
+  })
+  if (!response.ok) return []
+  const data = await response.json() as { pricing_table_items?: { name?: string; amount?: string | number; currency?: string; price_id?: string }[] }
+  const [hours, minutes] = classes[activity].time.split(':').map(Number)
+  const rows: ClassOffer[] = []
+  for (const item of data.pricing_table_items || []) {
+    if (!item.price_id || !item.name) continue
+    const found = dateInText(item.name)
+    let startsAt = found?.date ? new Date(found.date) : null
+    if (startsAt && !found?.hasTime) startsAt.setHours(hours, minutes, 0, 0)
+    if (startsAt && startsAt.getTime() <= Date.now()) continue
+    rows.push({
+      priceId: item.price_id,
+      name: item.name,
+      startsAt: startsAt ? startsAt.toISOString() : null,
+      amount: Number(item.amount || 0),
+      currency: item.currency || 'usd',
+    })
+  }
+  rows.sort((a, b) => (a.startsAt || '9999').localeCompare(b.startsAt || '9999'))
+  return rows
+}
+
 const months: Record<string, number> = {
   января: 0, февраля: 1, марта: 2, апреля: 3, мая: 4, июня: 5, июля: 6, августа: 7, сентября: 8, октября: 9, ноября: 10, декабря: 11,
   январь: 0, февраль: 1, март: 2, апрель: 3, май: 4, июнь: 5, июль: 6, август: 7, сентябрь: 8, октябрь: 9, ноябрь: 10, декабрь: 11,
