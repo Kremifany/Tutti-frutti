@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { resumeOwnerGoogle } from '@/components/owner-google'
 import { authClient } from '@/lib/auth-client'
 
 export function GoogleButton({ label, unavailable, callbackURL = '/auth/continue' }: { label: string; unavailable: string; callbackURL?: string }) {
@@ -14,7 +13,6 @@ export function GoogleButton({ label, unavailable, callbackURL = '/auth/continue
         type="button"
         onClick={async () => {
           setError('')
-          resumeOwnerGoogle()
           const result = await authClient.signIn.social({ provider: 'google', callbackURL })
           if (result.error) setError(unavailable)
         }}

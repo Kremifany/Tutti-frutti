@@ -5,7 +5,6 @@ const pricingTables: Record<ClassSlug, string> = {
   'live-letters': 'STRIPE_PRICING_TABLE_LIVE_LETTERS',
   grow: 'STRIPE_PRICING_TABLE_GROW',
   consonance: 'STRIPE_PRICING_TABLE_CONSONANCE',
-  'animal-kingdom': 'STRIPE_PRICING_TABLE_ANIMAL_KINGDOM',
   storytelling: 'STRIPE_PRICING_TABLE_STORYTELLING',
 }
 

@@ -14,8 +14,7 @@ New parents can explore the classes, register a child, and pay for a session. Th
 * **Class pages:**
   * Живые буквы (Live Letters)
   * Расти (Grow)
-  * Созвучие (Consonance)
-  * Царство животных (Animal Kingdom)
+  * Четыре стихии (Four Elements)
   * Storytelling (Interactive storytelling)
 * **Account:** Email and password sign-in. Google sign-in appears when Google keys are set.
 * **Registration:** Before payment, the parent enters the name of the child who is coming (up to three children).
@@ -70,7 +69,6 @@ STRIPE_WEBHOOK_SECRET=
 STRIPE_PRICING_TABLE_LIVE_LETTERS=
 STRIPE_PRICING_TABLE_GROW=
 STRIPE_PRICING_TABLE_CONSONANCE=
-STRIPE_PRICING_TABLE_ANIMAL_KINGDOM=
 STRIPE_PRICING_TABLE_STORYTELLING=
 ```
 

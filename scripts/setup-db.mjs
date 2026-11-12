@@ -56,8 +56,7 @@ if (existing.rowCount === 0) {
 const schedule = [
   ['live-letters', 1, 18, 0, 'Живые буквы'],
   ['grow', 3, 17, 45, 'Расти'],
-  ['consonance', 5, 17, 0, 'Созвучие'],
-  ['animal-kingdom', 6, 10, 0, 'Царство животных'],
+  ['consonance', 5, 17, 0, 'Четыре стихии'],
   ['storytelling', 6, 10, 0, 'Интерактивный сторителлинг'],
 ]
 
@@ -78,6 +77,7 @@ function upcomingDates(weekday, hours, minutes, count = 8) {
 }
 
 await pool.query('update product set active = false where starts_at <= now()')
+await pool.query(`update product set active = false where activity = 'animal-kingdom'`)
 for (const [slug, weekday, hours, minutes, name] of schedule) {
   for (const date of upcomingDates(weekday, hours, minutes)) {
     const month = String(date.getMonth() + 1).padStart(2, '0')
