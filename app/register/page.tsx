@@ -52,7 +52,7 @@ const text = {
   },
 }
 
-const openClasses = ['live-letters', 'grow', 'consonance', 'animal-kingdom'] as const
+const openClasses = ['live-letters', 'grow', 'consonance'] as const
 
 function RegisterForm() {
   const params = useSearchParams()

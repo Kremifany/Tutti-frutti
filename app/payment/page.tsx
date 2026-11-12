@@ -54,7 +54,7 @@ const text = {
   },
 }
 
-const openClasses = ['live-letters', 'grow', 'consonance', 'animal-kingdom'] as const
+const openClasses = ['live-letters', 'grow', 'consonance'] as const
 
 function formatDay(value: string, lang: 'ru' | 'en') {
   return new Intl.DateTimeFormat(lang === 'en' ? 'en-US' : 'ru-RU', {

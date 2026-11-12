@@ -1,8 +1,7 @@
 export const classes = {
   'live-letters': { ru: 'Живые буквы', en: 'Live Letters', weekday: 1, time: '18:00' },
   grow: { ru: 'Расти', en: 'Grow', weekday: 3, time: '17:45' },
-  consonance: { ru: 'Созвучие', en: 'Consonance', weekday: 5, time: '17:00' },
-  'animal-kingdom': { ru: 'Царство животных', en: 'Animal Kingdom', weekday: 6, time: '10:00' },
+  consonance: { ru: 'Четыре стихии', en: 'Four Elements', weekday: 5, time: '17:00' },
   storytelling: { ru: 'Интерактивный сторителлинг', en: 'Interactive Storytelling', weekday: 6, time: '10:00' },
 } as const
 

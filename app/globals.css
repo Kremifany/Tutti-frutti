@@ -89,3 +89,9 @@
 @keyframes skeleton-shimmer{from{background-position:100% 0}to{background-position:0 0}}
 @media(prefers-reduced-motion:reduce){.skeleton{animation:none}}
 .account-classes{margin:0 0 28px}
+.letters-banner{padding-top:clamp(20px,4vw,40px)}
+.letters-banner h1.letters-art{margin:0 -28px .35em}
+.letters-art img{width:calc(100% + 56px);max-width:none;height:auto;display:block}
+.letters-banner .detail-intro{margin-top:.15em;font-size:clamp(16px,2.1vw,20px)}
+.letters-poster{padding-top:12px}
+@media(max-width:420px){.letters-title{font-size:clamp(46px,14.5vw,58px)}}

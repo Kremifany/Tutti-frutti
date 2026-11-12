@@ -66,10 +66,10 @@ const data = {
     accent: 'lavender',
     image: '/images/consonance-3.png',
     ru: {
-      en: 'Consonance',
-      title: 'Созвучие',
+      en: 'Four Elements',
+      title: 'Четыре стихии',
       intro: 'Мягкое развивающее пространство в кабинете психолога: движение, ритмы, сенсорика, дыхание и расслабление на аэрогамаках.',
-      alt: 'Созвучие — слышу мир: музыка, движение и ощущения',
+      alt: 'Четыре стихии — слышу мир: музыка, движение и ощущения',
       section: 'На занятиях',
       headingA: 'Растём через',
       headingB: 'любопытство.',
@@ -77,41 +77,15 @@ const data = {
       bullets: ['Крупная моторика и ритмы', 'Сенсорные игры и дыхательные практики', 'Расслабление и бережное общение'],
     },
     en: {
-      en: 'Consonance',
-      title: 'Consonance',
+      en: 'Four Elements',
+      title: 'Four Elements',
       intro: 'A gentle space in a psychologist’s room: movement, rhythm, sensory play, breathing, and rest in aerial hammocks.',
-      alt: 'Consonance — I hear the world: music, movement, and sensation',
+      alt: 'Four Elements — I hear the world: music, movement, and sensation',
       section: 'In class',
       headingA: 'We grow through',
       headingB: 'curiosity.',
       button: 'Enroll a child',
       bullets: ['Gross motor skills and rhythm', 'Sensory games and breathing', 'Rest and gentle connection'],
-    },
-  },
-  'animal-kingdom': {
-    accent: 'sun',
-    image: '/images/animal-kingdom.png',
-    ru: {
-      en: 'Animal kingdom',
-      title: 'Царство животных',
-      intro: 'Читаем, играем и проживаем историю всем телом — вместе с родителями.',
-      alt: 'Царство животных — читаем, играем и проживаем историю',
-      section: 'На занятиях',
-      headingA: 'Живём историю',
-      headingB: 'всем телом.',
-      button: 'Записать ребёнка',
-      bullets: ['Каждую встречу читаем новую историю', 'Играем и проживаем её движением и театрализацией', 'После занятия — свободная игра вместе с родителями'],
-    },
-    en: {
-      en: 'Animal Kingdom',
-      title: 'Animal Kingdom',
-      intro: 'We read, play, and live the story with our whole bodies — together with parents.',
-      alt: 'Animal Kingdom — we read, play, and live the story',
-      section: 'In class',
-      headingA: 'We live the story',
-      headingB: 'with our whole bodies.',
-      button: 'Enroll a child',
-      bullets: ['Each meeting we read a new story', 'We play it out through movement and theater', 'Free play with parents afterward'],
     },
   },
   storytelling: {
@@ -166,6 +140,7 @@ export function ActivityDetail({ slug }: { slug: string }) {
   const register = isClassSlug(slug) ? checkoutPath(slug) : '/#activities'
   const href = session || !isClassSlug(slug) ? register : `/sign-in?next=${encodeURIComponent(register)}`
   const label = lang === 'en' ? 'To register' : 'Записаться'
+  const letters = slug === 'live-letters'
 
   useEffect(() => {
     if (!isClassSlug(slug)) return
@@ -177,30 +152,33 @@ export function ActivityDetail({ slug }: { slug: string }) {
     return () => { active = false }
   }, [slug])
 
+  const signup = !story && (offers && offers.length > 0 ? (
+    <div className="date-offers">
+      {offers.map((offer) => {
+        const next = isClassSlug(slug) ? `${checkoutPath(slug)}&price=${offer.priceId}` : href
+        const offerHref = session ? next : `/sign-in?next=${encodeURIComponent(next)}`
+        const text = offerText(offer, lang)
+        return (
+          <div className="date-offer" key={offer.priceId}>
+            <div><strong>{text.when}</strong><span>{text.detail}</span></div>
+            <Link className="primary-button" href={offerHref}>{label} <ArrowRight size={17} /></Link>
+          </div>
+        )
+      })}
+    </div>
+  ) : offers === null ? null : <Link className="primary-button" href={href}>{label} <ArrowRight size={17} /></Link>)
+
   return (
     <main className="detail-page">
       <ScrollToTop />
-      {story ? <StoryCarousel href={href} lang={lang} index={storyIndex} onIndex={setStoryIndex} /> : item.image && <section className="detail-feature-image is-lead"><img src={item.image} alt={copy.alt} /></section>}
-      <section className="detail-heading">
-        <p className="eyebrow">{copy.en}</p>
-        <h1>{copy.title}</h1>
+      {story ? <StoryCarousel href={href} lang={lang} index={storyIndex} onIndex={setStoryIndex} /> : !letters && item.image && <section className="detail-feature-image is-lead"><img src={item.image} alt={copy.alt} /></section>}
+      <section className={letters ? 'detail-heading letters-banner' : 'detail-heading'}>
+        {!letters && <p className="eyebrow">{copy.en}</p>}
+        {letters ? <h1 className="letters-art"><img src={lang === 'en' ? '/images/live_letters_eng_1.jpg' : '/images/live_letters_ru_1.jpg'} alt={lang === 'en' ? 'Live Letters' : 'Живые буквы'} /></h1> : <h1>{copy.title}</h1>}
         <p className="detail-intro">{copy.intro}</p>
-        {!story && (offers && offers.length > 0 ? (
-          <div className="date-offers">
-            {offers.map((offer) => {
-              const next = isClassSlug(slug) ? `${checkoutPath(slug)}&price=${offer.priceId}` : href
-              const offerHref = session ? next : `/sign-in?next=${encodeURIComponent(next)}`
-              const text = offerText(offer, lang)
-              return (
-                <div className="date-offer" key={offer.priceId}>
-                  <div><strong>{text.when}</strong><span>{text.detail}</span></div>
-                  <Link className="primary-button" href={offerHref}>{label} <ArrowRight size={17} /></Link>
-                </div>
-              )
-            })}
-          </div>
-        ) : offers === null ? null : <Link className="primary-button" href={href}>{label} <ArrowRight size={17} /></Link>)}
+        {signup}
       </section>
+      {letters && <section className="detail-feature-image letters-poster"><img src={lang === 'en' ? '/images/Gemini_Generated_Image_kaxs4jkaxs4jkaxs.jfif' : '/images/live_letters_without_banner_ru.jpg'} alt={copy.alt} /></section>}
       <section className="detail-content">
         <div><p className="eyebrow">{copy.section}</p><h2>{copy.headingA}<br /><em>{copy.headingB}</em></h2></div>
         <ul>{copy.bullets.map((bullet) => <li key={bullet}><Check size={18} /> {bullet}</li>)}</ul>
