@@ -11,7 +11,26 @@ if (existsSync(envFile)) {
   }
 }
 
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL })
+function postgresHost(value) {
+  if (!value || !/^postgres(ql)?:\/\//i.test(value)) return ''
+  try {
+    return new URL(value).hostname
+  } catch {
+    return ''
+  }
+}
+
+const databaseUrl = process.env.DATABASE_URL
+if (!postgresHost(databaseUrl)) {
+  const message = 'DATABASE_URL must be a postgres URL such as postgresql://user:password@host:5432/database'
+  if (process.env.VERCEL) {
+    console.warn(`Skipping database setup. ${message}`)
+    process.exit(0)
+  }
+  throw new Error(message)
+}
+
+const pool = new pg.Pool({ connectionString: databaseUrl })
 
 async function waitForDatabase() {
   for (let attempt = 1; attempt <= 30; attempt++) {
