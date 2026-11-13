@@ -1,8 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, CalendarDays, Globe2, Heart, Sparkles, Users } from 'lucide-react'
+import { ArrowRight, Check, Globe2, Heart, Sparkles, Users } from 'lucide-react'
+import { Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useLang } from '@/components/language'
+import { classes, isClassSlug } from '@/lib/classes'
 
 const activities = [
   { slug: 'live-letters', accent: 'coral', image: '/images/live-letters-1.png', symbol: 'А', symbolEn: 'A', title: 'Живые буквы', titleEn: 'Live Letters', age: '4–5 лет', ageEn: '4–5 years', time: 'Понедельник · 18:00', timeEn: 'Monday · 18:00', description: 'Учим буквы играя и создаём свою азбуку — буква за буквой.', descriptionEn: 'We learn letters through play and make our own alphabet — letter by letter.' },
@@ -18,28 +21,31 @@ const text = {
     titleB: 'Двигаемся.',
     titleC: 'Открываем',
     titleD: 'новое.',
-    hero: 'Развивающие занятия для детей, где движение встречается с мышлением, а обучение превращается в увлекательную игру.',
+    hero: 'Творческие, развивающие и образовательные занятия на русском языке, где книги, музыка, движение и игра помогают детям открывать мир, узнавать себя и находить друзей.',
     choose: 'Выбрать занятие',
     art: 'Иллюстрация детей, играющих и читающих',
     book: 'азбука',
     play: 'игра',
     noteA: 'маленькие',
     noteB: 'открытия',
-    groups: 'Мини-группы',
-    groupsB: 'до 8 детей',
-    gentle: 'Бережный подход',
-    gentleB: 'к каждому ребёнку',
-    classes: 'Занятия',
-    classesB: 'на русском языке',
+    advantageGroups: 'Небольшие группы',
+    advantageLanguage: 'Занятия на русском языке',
+    advantagePlay: 'Игра, движение и творчество на каждой встрече',
     projects: 'Мои проекты',
     pickA: 'Выберите своё',
     pickB: 'приключение',
     pickText: 'Каждое занятие — это пространство, где ребёнок может быть собой, пробовать новое и расти в своём темпе.',
     more: 'Подробнее',
     about: 'Про пространство',
-    aboutA: 'Здесь можно',
-    aboutB: 'расти играя.',
-    aboutText: 'Мы создаём занятия, которые помогают детям развивать речь, внимание, воображение, координацию и самостоятельность — легко, с интересом и удовольствием.',
+    aboutA: 'Растём',
+    aboutB: 'играя.',
+    aboutParagraphs: [
+      'В жизни современных детей много занятий, экранов и готовых ответов. А времени на игру — ту, где можно фантазировать, придумывать свои правила, пробовать и договариваться, — порой остаётся совсем немного. Но именно в игре ребёнок учится проявлять инициативу, справляться с трудностями, выражать свои чувства и понимать других.',
+      'В Tutti-Frutti мы создаём пространство для таких открытий. Читаем книги и становимся участниками историй, слушаем музыку и создаём собственные ритмы, знакомимся с буквами, исследуем, двигаемся и творим. Здесь есть место любопытству, неожиданным вопросам и детским идеям.',
+      'Особое внимание мы уделяем общению и эмпатии — способности замечать и понимать чувства другого человека. Эти навыки нужны каждому: чтобы дружить, договариваться, просить о помощи и поддерживать. Обсуждая поступки книжных героев и играя вместе, дети пробуют смотреть на ситуацию с разных сторон, слушать друг друга и находить общий язык.',
+      'Каждая встреча объединяет обучение с живым опытом. Дети развивают речь, внимание, память, мышление и координацию, учатся создавать и действовать вместе. В небольшой группе мы можем уделить внимание каждому, поддержать его интерес и дать время освоиться.',
+      'Нам важно, чтобы ребёнок уходил с радостью от собственных открытий и желанием попробовать ещё.',
+    ],
     account: 'Личный кабинет родителей',
     tagline: 'Маленькие открытия каждый день.',
     online: 'Онлайн',
@@ -51,33 +57,49 @@ const text = {
     titleB: 'Move.',
     titleC: 'Discover',
     titleD: 'something new.',
-    hero: 'Classes for children, where movement meets thinking and learning turns into play.',
+    hero: 'Creative, developmental, and educational classes in Russian, where books, music, movement, and play help children discover the world, learn about themselves, and find friends.',
     choose: 'Choose a class',
     art: 'Illustration of children playing and reading',
     book: 'alphabet',
     play: 'play',
     noteA: 'little',
     noteB: 'discoveries',
-    groups: 'Small groups',
-    groupsB: 'up to 8 children',
-    gentle: 'A gentle approach',
-    gentleB: 'for every child',
-    classes: 'Classes',
-    classesB: 'in Russian',
+    advantageGroups: 'Small groups',
+    advantageLanguage: 'Classes in Russian',
+    advantagePlay: 'Play, movement, and making things at every meeting',
     projects: 'My projects',
     pickA: 'Choose your',
     pickB: 'adventure',
     pickText: 'Each class is a space where a child can be themselves, try something new, and grow at their own pace.',
     more: 'Details',
     about: 'About the space',
-    aboutA: 'Here you can',
-    aboutB: 'grow through play.',
-    aboutText: 'We create classes that help children develop speech, attention, imagination, coordination, and independence — lightly, with interest and joy.',
+    aboutA: 'We grow',
+    aboutB: 'through play.',
+    aboutParagraphs: [
+      'Modern childhood is full of activities, screens, and ready-made answers. There is often little time left for play where a child can imagine, invent their own rules, try things, and come to an agreement. Yet it is in play that a child learns to take initiative, handle difficulties, express feelings, and understand other people.',
+      'At Tutti-Frutti we make room for those discoveries. We read books and step into the stories, listen to music and make our own rhythms, meet letters, explore, move, and create. There is space here for curiosity, unexpected questions, and children’s ideas.',
+      'We pay special attention to communication and empathy — the ability to notice and understand another person’s feelings. Everyone needs these skills: to make friends, reach an agreement, ask for help, and offer support. Talking about what book characters do, and playing together, children try looking at a situation from different sides, listen to one another, and find a common language.',
+      'Each meeting joins learning with lived experience. Children develop speech, attention, memory, thinking, and coordination, and they learn to create and act together. In a small group we can give attention to each child, support their interest, and give them time to settle in.',
+      'We want each child to leave glad about their own discoveries and wanting to try again.',
+    ],
     account: 'Parent account',
     tagline: 'Little discoveries every day.',
     online: 'Online',
     language: 'Russian / English',
   },
+}
+
+function RegisterNotice() {
+  const { lang } = useLang()
+  const slug = useSearchParams().get('registered') || ''
+  if (!isClassSlug(slug)) return null
+  const name = classes[slug][lang]
+  return (
+    <p className="register-success" role="status">
+      <Check size={18} />
+      {lang === 'en' ? `Registration for ${name} was successful.` : `Запись на занятие «${name}» прошла успешно.`}
+    </p>
+  )
 }
 
 export default function Page() {
@@ -87,6 +109,7 @@ export default function Page() {
 
   return (
     <main className="site-shell">
+      <Suspense fallback={null}><RegisterNotice /></Suspense>
       <section className="hero-section">
         <div className="hero-copy">
           <p className="eyebrow"><Sparkles size={15} /> {t.eyebrow}</p>
@@ -103,14 +126,14 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="trust-row"><div><Users size={20} /><span>{t.groups}<br /><b>{t.groupsB}</b></span></div><div><Heart size={20} /><span>{t.gentle}<br /><b>{t.gentleB}</b></span></div><div><CalendarDays size={20} /><span>{t.classes}<br /><b>{t.classesB}</b></span></div></section>
+      <section className="trust-row" aria-label={en ? 'Our advantages' : 'Наши преимущества'}><div><Users size={20} /><span>{t.advantageGroups}</span></div><div><Globe2 size={20} /><span>{t.advantageLanguage}</span></div><div><Sparkles size={20} /><span>{t.advantagePlay}</span></div></section>
 
       <section id="activities" className="activities-section">
         <div className="section-heading"><div><p className="eyebrow">{t.projects}</p><h2>{t.pickA}<br /><em>{t.pickB}</em></h2></div><p>{t.pickText}</p></div>
         <div className="activity-grid">{activities.map((item, index) => <Link href={`/activities/${item.slug}`} className={`activity-card ${item.accent}`} key={item.slug}><div className="activity-top"><span className="activity-index">0{index + 1}</span><span className="activity-age">{en ? item.ageEn : item.age}</span></div><div className="activity-photo"><img src={item.image} alt="" /></div><div className="activity-symbol">{en ? item.symbolEn : item.symbol}</div><h3>{en ? item.titleEn : item.title}</h3>{!en && item.titleEn !== item.title && <p className="activity-en">{item.titleEn}</p>}<p>{en ? item.descriptionEn : item.description}</p><span className="card-link">{t.more} <ArrowRight size={16} /></span></Link>)}</div>
       </section>
 
-      <section id="about" className="about-section"><div className="about-stamp"><img src="/images/logo.png" alt="tutti-frutti" /></div><div><p className="eyebrow">{t.about}</p><h2>{t.aboutA}<br /><em>{t.aboutB}</em></h2><p>{t.aboutText}</p><Link href="/#activities" className="text-link" onClick={(event) => { event.preventDefault(); document.getElementById('activities')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); history.pushState(null, '', '/#activities') }}>{t.account} <ArrowRight size={16} /></Link></div></section>
+      <section id="about" className="about-section"><div className="about-stamp"><img src="/images/logo.png" alt="tutti-frutti" /></div><div><p className="eyebrow">{t.about}</p><h2>{t.aboutA}<br /><em>{t.aboutB}</em></h2><div className="about-story">{t.aboutParagraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div><Link href="/#activities" className="text-link" onClick={(event) => { event.preventDefault(); document.getElementById('activities')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); history.pushState(null, '', '/#activities') }}>{t.account} <ArrowRight size={16} /></Link></div></section>
       <footer id="contact"><div><Link href="/" className="brand"><span className="brand-mark"><img src="/images/logo.png" alt="" /></span><span>tutti-frutti</span></Link><p>{t.tagline}</p></div><div className="footer-contact"><p>{t.online}</p><a href="mailto:tuttifruttiphiladelphia@gmail.com">tuttifruttiphiladelphia@gmail.com</a></div><div className="footer-language"><Globe2 size={16} /> {t.language}</div></footer>
     </main>
   )

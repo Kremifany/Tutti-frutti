@@ -20,7 +20,7 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   title: 'tutti-frutti — растём играя',
-  description: 'Развивающие занятия для детей: живые буквы, Расти, Четыре стихии и интерактивный сторителлинг.',
+  description: 'Творческие, развивающие и образовательные занятия на русском языке, где книги, музыка, движение и игра помогают детям открывать мир, узнавать себя и находить друзей.',
   icons: {
     icon: [{ url: '/tf-color.png', type: 'image/png', sizes: '128x128' }],
     apple: '/images/logo.png',
