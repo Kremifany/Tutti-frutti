@@ -14,7 +14,7 @@ const text = {
     done: 'Готово',
     enrolled: 'Вы записаны!',
     sent: 'Оплата прошла. Занятие и дата сохранены в кабинете.',
-    open: 'Открыть кабинет',
+    open: 'На сайт',
     payment: 'Оплата',
     secure: 'Демо-оплата',
     confirmA: 'Оплатите',
@@ -35,7 +35,7 @@ const text = {
     done: 'Done',
     enrolled: 'You’re enrolled!',
     sent: 'Payment went through. The class and date are saved in your account.',
-    open: 'Open account',
+    open: 'Back to the site',
     payment: 'Payment',
     secure: 'Demo payment',
     confirmA: 'Pay for',
@@ -105,7 +105,7 @@ function PaymentForm() {
           <p className="eyebrow">{t.done}</p>
           <h1>{t.enrolled}</h1>
           <p className="form-lead">{program} · {classDate ? formatDay(classDate, lang) : ''}. {t.sent}</p>
-          <Link href="/auth/continue" className="primary-button form-button">{t.open}</Link>
+          <Link href={`/?registered=${activity}`} className="primary-button form-button">{t.open}</Link>
         </> : <>
           <div className="stripe-head"><span><CreditCard size={20} /> {t.payment}</span><small>DEMO</small></div>
           <p className="eyebrow">{t.secure}</p>

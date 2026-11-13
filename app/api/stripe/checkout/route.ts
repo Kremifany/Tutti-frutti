@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     customer_email: session.user.email,
     client_reference_id: reference,
     line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${origin}/account`,
+    success_url: `${origin}/?registered=${activity}`,
     cancel_url: `${origin}/activities/${activity}`,
   })
   if (!checkout.url) return NextResponse.json({ error: 'missing' }, { status: 500 })
