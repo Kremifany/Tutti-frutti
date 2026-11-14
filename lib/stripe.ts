@@ -20,6 +20,33 @@ export function stripeClient() {
   return new Stripe(key)
 }
 
+export function classReturnUrl(origin: string, activity: ClassSlug) {
+  return `${origin}/activities/${activity}?registered=1`
+}
+
+export async function pointClassPaymentsHome(activity: ClassSlug, origin: string) {
+  const stripe = stripeClient()
+  if (!stripe) return
+  const url = classReturnUrl(origin, activity)
+  try {
+    const offers = await pricingTableOffers(activity)
+    const priceIds = new Set(offers.map((offer) => offer.priceId))
+    if (!priceIds.size) return
+    const links = await stripe.paymentLinks.list({ active: true, limit: 100 })
+    await Promise.all(links.data.map(async (link) => {
+      const full = await stripe.paymentLinks.retrieve(link.id, { expand: ['line_items'] })
+      const prices = (full.line_items?.data || []).map((item) => item.price?.id || '')
+      if (!prices.some((id) => priceIds.has(id))) return
+      if (full.after_completion?.type === 'redirect' && full.after_completion.redirect?.url === url) return
+      await stripe.paymentLinks.update(link.id, {
+        after_completion: { type: 'redirect', redirect: { url } },
+      })
+    }))
+  } catch {
+    // Checkout can still send the parent home through its own success URL.
+  }
+}
+
 export type ClassOffer = {
   priceId: string
   name: string

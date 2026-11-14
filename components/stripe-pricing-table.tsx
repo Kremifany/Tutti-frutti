@@ -1,16 +1,14 @@
 'use client'
 
-import Script from 'next/script'
-import { createElement, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLang } from '@/components/language'
 import { childNames } from '@/lib/child-names'
-import { type ClassSlug } from '@/lib/classes'
+import { classes, type ClassSlug } from '@/lib/classes'
 
 const text = {
   ru: {
     eyebrow: 'Запись',
     whoA: 'Кого записываем',
-    whoB: 'на занятие.',
     whoLead: 'Оплачивает родитель. Выберите ребёнка из кабинета или напишите новое имя. Можно до трёх детей.',
     yours: 'Ваши дети',
     child: 'Имя ребёнка',
@@ -22,13 +20,12 @@ const text = {
     missingName: 'Введите имя ребёнка.',
     already: (name: string) => `Ребёнок ${name} уже записан на это занятие.`,
     failed: 'Не удалось сохранить имена.',
-    missing: 'Таблица цен Stripe для этого занятия ещё не подключена.',
+    missing: (name: string) => `Таблица цен Stripe для занятия «${name}» ещё не подключена.`,
     opening: 'Открываем оплату…',
   },
   en: {
     eyebrow: 'Registration',
     whoA: 'Who is joining',
-    whoB: 'this class.',
     whoLead: 'The parent pays. Choose a child already in your account, or add a new name. Up to three children.',
     yours: 'Your children',
     child: 'Child’s name',
@@ -40,14 +37,15 @@ const text = {
     missingName: 'Enter the child’s name.',
     already: (name: string) => `The child ${name} already registered for that activity.`,
     failed: 'Could not save the names.',
-    missing: 'The Stripe pricing table for this class is not connected yet.',
+    missing: (name: string) => `The Stripe pricing table for ${name} is not connected yet.`,
     opening: 'Opening payment…',
   },
 }
 
-export function StripePricingTable({ activity, publishableKey, pricingTableId, clientReferenceId, customerEmail, priceId = '' }: { activity: ClassSlug; publishableKey: string; pricingTableId: string; clientReferenceId: string; customerEmail: string; priceId?: string }) {
+export function StripePricingTable({ activity, publishableKey, pricingTableId, priceId = '' }: { activity: ClassSlug; publishableKey: string; pricingTableId: string; priceId?: string }) {
   const { lang } = useLang()
   const t = text[lang]
+  const className = classes[activity][lang]
   const ready = Boolean(publishableKey && pricingTableId)
   const [known, setKnown] = useState<string[]>([])
   const [picked, setPicked] = useState<string[]>([])
@@ -55,7 +53,9 @@ export function StripePricingTable({ activity, publishableKey, pricingTableId, c
   const [saved, setSaved] = useState<{ id: string; name: string }[] | null>(null)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  const reference = saved ? `${clientReferenceId}|${activity}|${saved.map((item) => item.id).join(',')}` : ''
+  const [chosenPrice, setChosenPrice] = useState(priceId)
+  const [offers, setOffers] = useState<{ priceId: string; name: string; amount: number; currency: string }[] | null>(null)
+  const payFor = chosenPrice || priceId
   const openSlots = 3 - picked.length - names.length
 
   useEffect(() => {
@@ -69,12 +69,22 @@ export function StripePricingTable({ activity, publishableKey, pricingTableId, c
   }, [])
 
   useEffect(() => {
-    if (!saved || !priceId) return
+    if (!saved || payFor) return
+    let active = true
+    fetch(`/api/stripe/dates?activity=${activity}`).then(async (response) => {
+      if (!active) return
+      setOffers(response.ok ? await response.json() : [])
+    }).catch(() => { if (active) setOffers([]) })
+    return () => { active = false }
+  }, [saved, payFor, activity])
+
+  useEffect(() => {
+    if (!saved || !payFor) return
     let active = true
     fetch('/api/stripe/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ activity, priceId, childIds: saved.map((item) => item.id) }),
+      body: JSON.stringify({ activity, priceId: payFor, childIds: saved.map((item) => item.id) }),
     }).then(async (response) => {
       const payload = await response.json().catch(() => null) as { url?: string; names?: string[] } | null
       if (!active) return
@@ -96,7 +106,7 @@ export function StripePricingTable({ activity, publishableKey, pricingTableId, c
       setBusy(false)
     })
     return () => { active = false }
-  }, [saved, priceId, activity, t.failed, t.already])
+  }, [saved, payFor, activity, t.failed, t.already])
 
   const toggleChild = (name: string) => {
     setPicked((current) => {
@@ -138,7 +148,7 @@ export function StripePricingTable({ activity, publishableKey, pricingTableId, c
             setSaved(await response.json())
           }}>
             <p className="eyebrow">{t.eyebrow}</p>
-            <h1>{t.whoA}<br /><em>{t.whoB}</em></h1>
+            <h1>{t.whoA}<br /><em>{lang === 'en' ? `${className}.` : `на «${className}».`}</em></h1>
             <p className="form-lead">{t.whoLead}</p>
             {known.length > 0 && <>
               <p className="child-label">{t.yours}</p>
@@ -158,15 +168,14 @@ export function StripePricingTable({ activity, publishableKey, pricingTableId, c
           </form>
         ) : <>
           <div className="child-chips">{saved.map((item) => <span key={item.id}>{item.name}</span>)}<button type="button" className="link-button" onClick={() => setSaved(null)}>{t.edit}</button></div>
-          {priceId ? <p className="form-lead">{error || t.opening}</p> : ready ? <>
-            <Script src="https://js.stripe.com/v3/pricing-table.js" strategy="afterInteractive" />
-            {createElement('stripe-pricing-table', {
-              'pricing-table-id': pricingTableId,
-              'publishable-key': publishableKey,
-              'client-reference-id': reference,
-              'customer-email': customerEmail,
-            })}
-          </> : <p className="form-error">{t.missing}</p>}
+          {payFor ? <p className="form-lead">{error || t.opening}</p> : !ready ? <p className="form-error">{t.missing(className)}</p> : offers === null ? <p className="form-lead">{t.opening}</p> : offers.length === 0 ? <p className="form-error">{t.missing(className)}</p> : (
+            <div className="date-offers">
+              {offers.map((offer) => (
+                <button type="button" className="primary-button" key={offer.priceId} onClick={() => setChosenPrice(offer.priceId)}>{offer.name}</button>
+              ))}
+              {error && <p className="form-error">{error}</p>}
+            </div>
+          )}
         </>}
       </div>
     </main>

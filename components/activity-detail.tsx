@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { ArrowRight, Check } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { ScrollToTop } from '@/components/scroll-to-top'
 import { StoryCarousel, firstFutureStoryIndex } from '@/components/story-carousel'
@@ -131,6 +132,7 @@ function offerText(offer: Offer, lang: 'ru' | 'en') {
 
 export function ActivityDetail({ slug }: { slug: string }) {
   const { lang } = useLang()
+  const justRegistered = useSearchParams().get('registered') === '1'
   const { data: session } = authClient.useSession()
   const item = data[slug as keyof typeof data] ?? data.grow
   const copy = item[lang]
@@ -171,6 +173,7 @@ export function ActivityDetail({ slug }: { slug: string }) {
   return (
     <main className="detail-page">
       <ScrollToTop />
+      {justRegistered && <p className="register-success detail-success" role="status"><Check size={18} />{lang === 'en' ? `Registration for ${copy.title} was successful.` : `Запись на занятие «${copy.title}» прошла успешно.`}</p>}
       {story ? <StoryCarousel href={href} lang={lang} index={storyIndex} onIndex={setStoryIndex} /> : !letters && item.image && <section className="detail-feature-image is-lead"><img src={item.image} alt={copy.alt} /></section>}
       <section className={letters ? 'detail-heading letters-banner' : 'detail-heading'}>
         {!letters && <p className="eyebrow">{copy.en}</p>}

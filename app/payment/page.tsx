@@ -105,7 +105,7 @@ function PaymentForm() {
           <p className="eyebrow">{t.done}</p>
           <h1>{t.enrolled}</h1>
           <p className="form-lead">{program} · {classDate ? formatDay(classDate, lang) : ''}. {t.sent}</p>
-          <Link href={`/?registered=${activity}`} className="primary-button form-button">{t.open}</Link>
+          <Link href={`/activities/${activity}?registered=1`} className="primary-button form-button">{t.open}</Link>
         </> : <>
           <div className="stripe-head"><span><CreditCard size={20} /> {t.payment}</span><small>DEMO</small></div>
           <p className="eyebrow">{t.secure}</p>
