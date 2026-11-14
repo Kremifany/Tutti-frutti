@@ -96,6 +96,7 @@
 .letters-poster{padding-top:12px}
 @media(max-width:420px){.letters-title{font-size:clamp(46px,14.5vw,58px)}}
 .register-success{display:flex;align-items:center;gap:10px;margin:28px 0 0;padding:16px 18px;border-radius:16px;background:#e7f0e2;color:#2f4a32;font-weight:700}
+.detail-success{max-width:900px;margin:28px auto 0}
 .hero-text{max-width:540px}
 .about-section{align-items:start}
 .about-story{display:grid;gap:16px;margin-top:8px}

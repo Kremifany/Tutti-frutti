@@ -5,7 +5,7 @@ import { isClassSlug } from '@/lib/classes'
 import { db } from '@/lib/db'
 import { child } from '@/lib/schema'
 import { getSession } from '@/lib/session'
-import { pricingTableOffers, stripeClient } from '@/lib/stripe'
+import { classReturnUrl, pointClassPaymentsHome, pricingTableOffers, stripeClient } from '@/lib/stripe'
 
 export async function POST(request: Request) {
   const session = await getSession()
@@ -30,12 +30,15 @@ export async function POST(request: Request) {
   const reference = `${session.user.id}|${activity}|${childIds.join(',')}`
   if (reference.length > 200) return NextResponse.json({ error: 'missing' }, { status: 400 })
   const origin = new URL(request.url).origin
+  const returnUrl = classReturnUrl(origin, activity)
+  await pointClassPaymentsHome(activity, origin)
   const checkout = await stripe.checkout.sessions.create({
     mode: stripePrice.type === 'recurring' ? 'subscription' : 'payment',
     customer_email: session.user.email,
     client_reference_id: reference,
     line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${origin}/?registered=${activity}`,
+    wallet_options: { link: { display: 'never' } },
+    success_url: returnUrl,
     cancel_url: `${origin}/activities/${activity}`,
   })
   if (!checkout.url) return NextResponse.json({ error: 'missing' }, { status: 500 })
