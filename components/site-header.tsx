@@ -79,7 +79,7 @@ export function SiteHeader() {
           <span>tutti-frutti</span>
         </Link>
         <nav className={menuOpen ? 'site-nav is-open' : 'site-nav'} aria-label={t.nav}>
-          <Link href="/#activities" onClick={(event) => goToSection(event, 'activities')}>{t.projects}</Link>
+          <Link href="/#projects" onClick={(event) => goToSection(event, 'projects')}>{t.projects}</Link>
           <Link href="/#about" onClick={(event) => goToSection(event, 'about')}>{t.about}</Link>
           <Link href="/#contact" onClick={(event) => goToSection(event, 'contact')}>{t.contact}</Link>
           {session ? <><Link href={destinationForRole(session.user.role)} className="nav-login" onClick={() => setMenuOpen(false)}>{t.account} <ArrowRight size={15} /></Link><button className="nav-text" type="button" onClick={() => authClient.signOut().then(() => { window.location.href = '/' })}>{t.signOut}</button></> : <Link href="/sign-in" className="nav-login" onClick={() => setMenuOpen(false)}>{t.signIn} <ArrowRight size={15} /></Link>}
