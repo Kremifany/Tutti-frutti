@@ -124,3 +124,6 @@
 .trust-row span{font-size:14px;color:var(--ink);font-weight:700}
 @media(max-width:800px){.trust-row>div:nth-child(2){display:flex}}
 html[data-theme='dark'] .primary-button,html[data-theme='dark'] .primary-button:hover{color:#282522}
+.header-initials{width:36px;height:36px;border-radius:50%;background:var(--coral);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;letter-spacing:.04em;flex:none}
+.site-nav a.header-initials:hover{color:#fff;background:#d97862}
+@media(max-width:760px){.site-nav .header-initials{align-self:flex-start}}

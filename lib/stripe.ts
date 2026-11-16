@@ -20,14 +20,14 @@ export function stripeClient() {
   return new Stripe(key)
 }
 
-export function classReturnUrl(origin: string, activity: ClassSlug) {
-  return `${origin}/activities/${activity}?registered=1`
+export function classReturnUrl(origin: string) {
+  return `${origin}/account`
 }
 
 export async function pointClassPaymentsHome(activity: ClassSlug, origin: string) {
   const stripe = stripeClient()
   if (!stripe) return
-  const url = classReturnUrl(origin, activity)
+  const url = classReturnUrl(origin)
   try {
     const offers = await pricingTableOffers(activity)
     const priceIds = new Set(offers.map((offer) => offer.priceId))

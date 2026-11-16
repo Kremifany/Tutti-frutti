@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   const reference = `${session.user.id}|${activity}|${childIds.join(',')}`
   if (reference.length > 200) return NextResponse.json({ error: 'missing' }, { status: 400 })
   const origin = new URL(request.url).origin
-  const returnUrl = classReturnUrl(origin, activity)
+  const returnUrl = classReturnUrl(origin)
   await pointClassPaymentsHome(activity, origin)
   const checkout = await stripe.checkout.sessions.create({
     mode: stripePrice.type === 'recurring' ? 'subscription' : 'payment',

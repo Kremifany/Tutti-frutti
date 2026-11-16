@@ -2,9 +2,10 @@
 
 import Link from 'next/link'
 import { ArrowRight, Check, Globe2, Sparkles, Users } from 'lucide-react'
-import { Suspense } from 'react'
+import { Suspense, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useLang } from '@/components/language'
+import { authClient } from '@/lib/auth-client'
 import { classes, isClassSlug } from '@/lib/classes'
 
 const activities = [
@@ -163,9 +164,17 @@ function Landing() {
   const { lang } = useLang()
   const t = text[lang]
   const en = lang === 'en'
-  const requested = useSearchParams().get('variant')
+  const params = useSearchParams()
+  const requested = params.get('variant')
   const variant: HeroId = isHeroId(requested) ? requested : '1'
   const hero = heroes[variant][lang]
+  const { data: session, isPending } = authClient.useSession()
+  const signedIn = !isPending && !!session
+
+  useEffect(() => {
+    if (params.get('choose') !== '1') return
+    document.getElementById('activities')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [params])
 
   return (
     <main className="site-shell">
@@ -180,7 +189,7 @@ function Landing() {
           <p className="eyebrow"><Sparkles size={15} /> {t.eyebrow}</p>
           <h1 className={'long' in hero && hero.long ? 'hero-title is-long' : 'hero-title'}>{hero.title.map((part) => <span key={part.text}>{'em' in part && part.em ? <em>{part.text}</em> : part.text}{'breakAfter' in part && part.breakAfter ? <br /> : null}</span>)}</h1>
           <p className="hero-text">{hero.hero}</p>
-          <a href="#activities" className="primary-button">{hero.cta} <ArrowRight size={17} /></a>
+          {signedIn ? <a href="#activities" className="primary-button">{hero.cta} <ArrowRight size={17} /></a> : <Link href="/register" className="primary-button">{hero.cta} <ArrowRight size={17} /></Link>}
           {'micro' in hero && hero.micro ? <p className="hero-micro">{hero.micro}</p> : null}
         </div>
         <div className="hero-mark">

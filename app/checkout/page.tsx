@@ -9,12 +9,13 @@ export default async function CheckoutPage({ searchParams }: { searchParams: Pro
   const { activity: requested = '', price = '' } = await searchParams
   if (!isClassSlug(requested)) redirect('/#activities')
   const session = await getSession()
-  if (!session) redirect(`/sign-in?next=${encodeURIComponent(checkoutPath(requested))}`)
+  const priceId = /^price_[A-Za-z0-9]+$/.test(price) ? price : ''
+  const next = priceId ? `${checkoutPath(requested)}&price=${priceId}` : checkoutPath(requested)
+  if (!session) redirect(`/register?next=${encodeURIComponent(next)}`)
   const headerList = await headers()
   const host = headerList.get('x-forwarded-host') || headerList.get('host') || 'localhost:3000'
   const proto = headerList.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https')
   await pointClassPaymentsHome(requested, `${proto}://${host}`)
   const stripe = pricingTableFor(requested)
-  const priceId = /^price_[A-Za-z0-9]+$/.test(price) ? price : ''
   return <StripePricingTable activity={requested} publishableKey={stripe.publishableKey} pricingTableId={stripe.pricingTableId} priceId={priceId} />
 }

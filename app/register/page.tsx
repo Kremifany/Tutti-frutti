@@ -15,6 +15,7 @@ const text = {
     helloA: 'Давайте',
     helloB: 'познакомимся.',
     helloLead: 'Создайте аккаунт. После этого сохранится запись на выбранную дату.',
+    helloLeadOpen: 'Создайте аккаунт. После этого выберите занятие.',
     name: 'Ваше имя',
     namePlaceholder: 'Например, Анна',
     password: 'Пароль',
@@ -27,14 +28,13 @@ const text = {
     googleUnavailable: 'Google ещё не подключён. Добавьте ключи в .env.local.',
     failed: 'Не удалось создать аккаунт. Проверьте данные или войдите.',
     shortPassword: 'Пароль слишком короткий. Нужно минимум 8 символов.',
-    chooseClass: 'Сначала выберите занятие',
-    chooseLead: 'Можно зарегистрироваться через Google, или начать запись на странице занятия.',
   },
   en: {
     enroll: 'Enroll in a class',
     helloA: 'Let’s get',
     helloB: 'acquainted.',
     helloLead: 'Create an account. The chosen date is saved right after that.',
+    helloLeadOpen: 'Create an account. Then choose a class.',
     name: 'Your name',
     namePlaceholder: 'For example, Anna',
     password: 'Password',
@@ -47,12 +47,8 @@ const text = {
     googleUnavailable: 'Google is not connected yet. Add the keys to .env.local.',
     failed: 'Could not create the account. Check the details or sign in.',
     shortPassword: 'Password is too short. Use at least 8 characters.',
-    chooseClass: 'Choose a class first',
-    chooseLead: 'You can register with Google, or start from a class page.',
   },
 }
-
-const openClasses = ['live-letters', 'grow', 'consonance'] as const
 
 function RegisterForm() {
   const params = useSearchParams()
@@ -61,10 +57,11 @@ function RegisterForm() {
   const fromNext = next?.match(/\/activities\/([a-z0-9-]+)/)?.[1] || next?.match(/activity=([a-z0-9-]+)/)?.[1] || ''
   const activity = isClassSlug(requested) ? requested : isClassSlug(fromNext) ? fromNext : null
   const destination = next || (activity ? paymentPath(activity) : null)
+  const afterAccount = destination || '/?choose=1'
   const { lang } = useLang()
   const t = text[lang]
   const router = useRouter()
-  const { data: session } = authClient.useSession()
+  const { data: session, isPending } = authClient.useSession()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -72,30 +69,19 @@ function RegisterForm() {
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
-    if (session && destination) router.replace(destination)
-  }, [session, destination, router])
+    if (isPending || !session) return
+    router.replace(afterAccount)
+  }, [isPending, session, afterAccount, router])
 
-  if (!destination || !activity) {
-    return (
-      <main className="form-page">
-        <div className="form-wrap">
-          <p className="eyebrow">{t.enroll}</p>
-          <h1>{t.chooseClass}</h1>
-          <p className="form-lead">{t.chooseLead}</p>
-          <GoogleButton label={t.google} unavailable={t.googleUnavailable} callbackURL="/auth/continue" />
-          {openClasses.map((slug) => <Link key={slug} href={`/activities/${slug}`} className="primary-button form-button">{classes[slug][lang]} <ArrowRight size={17} /></Link>)}
-        </div>
-      </main>
-    )
-  }
+  if (isPending || session) return null
 
   return (
     <main className="form-page">
       <div className="form-wrap">
         <p className="eyebrow">{t.enroll}</p>
         <h1>{t.helloA}<br /><em>{t.helloB}</em></h1>
-        <p className="form-lead">{classes[activity][lang]}. {t.helloLead}</p>
-        <GoogleButton label={t.google} unavailable={t.googleUnavailable} callbackURL={destination} />
+        <p className="form-lead">{activity ? `${classes[activity][lang]}. ${t.helloLead}` : t.helloLeadOpen}</p>
+        <GoogleButton label={t.google} unavailable={t.googleUnavailable} callbackURL={afterAccount} />
         <label>{t.name}<input value={name} onChange={(event) => setName(event.target.value)} placeholder={t.namePlaceholder} /></label>
         <label>Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" /></label>
         <label>{t.password}<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder={t.passwordPlaceholder} /></label>
@@ -114,9 +100,9 @@ function RegisterForm() {
           const tooShort = authError?.code === 'PASSWORD_TOO_SHORT' || /too short/i.test(authError?.message || '')
           if (tooShort) setError(t.shortPassword)
           else if (authError) setError(t.failed)
-          else router.push(destination)
+          else router.push(afterAccount)
         }}>{t.continue} <ArrowRight size={17} /></button>
-        <p className="form-foot">{t.haveAccount} <Link href={`/sign-in?next=${encodeURIComponent(destination)}`}>{t.signIn}</Link></p>
+        <p className="form-foot">{t.haveAccount} <Link href={destination ? `/sign-in?next=${encodeURIComponent(destination)}` : '/sign-in'}>{t.signIn}</Link></p>
         <p className="secure-note"><LockKeyhole size={14} /> {t.secure}</p>
       </div>
     </main>

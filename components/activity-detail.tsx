@@ -140,7 +140,7 @@ export function ActivityDetail({ slug }: { slug: string }) {
   const [storyIndex, setStoryIndex] = useState(firstFutureStoryIndex)
   const [offers, setOffers] = useState<Offer[] | null>(null)
   const register = isClassSlug(slug) ? checkoutPath(slug) : '/#activities'
-  const href = session || !isClassSlug(slug) ? register : `/sign-in?next=${encodeURIComponent(register)}`
+  const href = session || !isClassSlug(slug) ? register : `/register?next=${encodeURIComponent(register)}`
   const label = lang === 'en' ? 'To register' : 'Записаться'
   const letters = slug === 'live-letters'
 
@@ -158,7 +158,7 @@ export function ActivityDetail({ slug }: { slug: string }) {
     <div className="date-offers">
       {offers.map((offer) => {
         const next = isClassSlug(slug) ? `${checkoutPath(slug)}&price=${offer.priceId}` : href
-        const offerHref = session ? next : `/sign-in?next=${encodeURIComponent(next)}`
+        const offerHref = session ? next : `/register?next=${encodeURIComponent(next)}`
         const text = offerText(offer, lang)
         return (
           <div className="date-offer" key={offer.priceId}>
