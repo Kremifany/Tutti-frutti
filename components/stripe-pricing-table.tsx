@@ -21,6 +21,7 @@ const text = {
     already: (name: string) => `Ребёнок ${name} уже записан на это занятие.`,
     failed: 'Не удалось сохранить имена.',
     missing: (name: string) => `Таблица цен Stripe для занятия «${name}» ещё не подключена.`,
+    empty: (name: string) => `Для занятия «${name}» в Stripe пока нет цен.`,
     opening: 'Открываем оплату…',
   },
   en: {
@@ -38,6 +39,7 @@ const text = {
     already: (name: string) => `The child ${name} already registered for that activity.`,
     failed: 'Could not save the names.',
     missing: (name: string) => `The Stripe pricing table for ${name} is not connected yet.`,
+    empty: (name: string) => `${name} has no prices in Stripe yet.`,
     opening: 'Opening payment…',
   },
 }
@@ -168,7 +170,7 @@ export function StripePricingTable({ activity, publishableKey, pricingTableId, p
           </form>
         ) : <>
           <div className="child-chips">{saved.map((item) => <span key={item.id}>{item.name}</span>)}<button type="button" className="link-button" onClick={() => setSaved(null)}>{t.edit}</button></div>
-          {payFor ? <p className="form-lead">{error || t.opening}</p> : !ready ? <p className="form-error">{t.missing(className)}</p> : offers === null ? <p className="form-lead">{t.opening}</p> : offers.length === 0 ? <p className="form-error">{t.missing(className)}</p> : (
+          {payFor ? <p className="form-lead">{error || t.opening}</p> : !ready ? <p className="form-error">{t.missing(className)}</p> : offers === null ? <p className="form-lead">{t.opening}</p> : offers.length === 0 ? <p className="form-error">{t.empty(className)}</p> : (
             <div className="date-offers">
               {offers.map((offer) => (
                 <button type="button" className="primary-button" key={offer.priceId} onClick={() => setChosenPrice(offer.priceId)}>{offer.name}</button>

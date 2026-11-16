@@ -1,14 +1,14 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, Check, Globe2, Heart, Sparkles, Users } from 'lucide-react'
+import { ArrowRight, Check, Globe2, Sparkles, Users } from 'lucide-react'
 import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useLang } from '@/components/language'
 import { classes, isClassSlug } from '@/lib/classes'
 
 const activities = [
-  { slug: 'live-letters', accent: 'coral', image: '/images/live-letters-1.png', symbol: 'А', symbolEn: 'A', title: 'Живые буквы', titleEn: 'Live Letters', age: '4–5 лет', ageEn: '4–5 years', time: 'Понедельник · 18:00', timeEn: 'Monday · 18:00', description: 'Учим буквы играя и создаём свою азбуку — буква за буквой.', descriptionEn: 'We learn letters through play and make our own alphabet — letter by letter.' },
+  { slug: 'live-letters', accent: 'coral', image: '/images/live-letters-card.png', symbol: 'А', symbolEn: 'A', title: 'Живые буквы', titleEn: 'Live Letters', age: '4–5 лет', ageEn: '4–5 years', time: 'Понедельник · 18:00', timeEn: 'Monday · 18:00', description: 'Учим буквы играя и создаём свою азбуку — буква за буквой.', descriptionEn: 'We learn letters through play and make our own alphabet — letter by letter.' },
   { slug: 'grow', accent: 'sage', image: '/images/grow-1.png', symbol: '↗', symbolEn: '↗', title: 'Расти', titleEn: 'Grow', age: '5–8 лет', ageEn: '5–8 years', time: 'Среда · 17:45', timeEn: 'Wednesday · 17:45', description: 'Думаем, двигаемся и открываем новое через игру и маленькие открытия.', descriptionEn: 'We think, move, and discover something new through play and small discoveries.' },
   { slug: 'consonance', accent: 'lavender', image: '/images/consonance-1.png', symbol: '◌', symbolEn: '◌', title: 'Четыре стихии', titleEn: 'Four Elements', age: 'от 2,5 лет', ageEn: 'from 2.5 years', time: 'Пятница · 17:00', timeEn: 'Friday · 17:00', description: 'Ритмы, движение, сенсорика и дыхание в мягком пространстве психолога.', descriptionEn: 'Rhythm, movement, sensory play, and breathing in a gentle psychologist’s space.' },
   { slug: 'storytelling', accent: 'coral', image: '/images/storytelling8.jpeg', symbol: '✧', symbolEn: '✧', title: 'Storytelling', titleEn: 'Storytelling', age: '2,5–8 лет', ageEn: '2.5–8 years', time: 'по афише', timeEn: 'see the poster', description: 'Читаем книгу, играем и проживаем историю вместе.', descriptionEn: 'We read a book, play, and live the story together.' },
@@ -89,6 +89,65 @@ const text = {
   },
 }
 
+const heroes = {
+  '1': {
+    ru: {
+      label: 'Вариант 1 · Тёплый',
+      title: [{ text: 'Tutti-Frutti —', breakAfter: true }, { text: 'растём играя', em: true }],
+      hero: 'Творческие и развивающие занятия на русском языке без экранов и скучных правил. Через книги, музыку, движение и живую игру помогаем детям открывать мир, понимать свои чувства и находить друзей.',
+      cta: 'Записаться на пробное занятие',
+      micro: 'Небольшие группы • Внимание каждому ребёнку',
+    },
+    en: {
+      label: 'Option 1 · Warm',
+      title: [{ text: 'Tutti-Frutti —', breakAfter: true }, { text: 'we grow through play', em: true }],
+      hero: 'Creative and developmental classes in Russian, without screens or dull rules. Through books, music, movement, and live play, we help children discover the world, understand their feelings, and find friends.',
+      cta: 'Sign up for a trial class',
+      micro: 'Small groups • Attention for every child',
+    },
+  },
+  '2': {
+    ru: {
+      label: 'Вариант 2 · Чёткий',
+      title: [{ text: 'Развивающие занятия на русском языке, где обучение — ' }, { text: 'это игра', em: true }],
+      hero: 'В Tutti-Frutti мы развиваем речь, мышление, координацию и эмпатию через живой опыт: читаем истории, создаём ритмы, знакомимся с буквами и учимся дружить в небольших группах.',
+      cta: 'Выбрать группу и расписание',
+      micro: 'Пространство для любопытства, творчества и радостных открытий',
+      long: true,
+    },
+    en: {
+      label: 'Option 2 · Clear',
+      title: [{ text: 'Developmental classes in Russian, where learning ' }, { text: 'is play', em: true }],
+      hero: 'At Tutti-Frutti we develop speech, thinking, coordination, and empathy through lived experience: we read stories, make rhythms, meet the letters, and learn to be friends in small groups.',
+      cta: 'Choose a group and a schedule',
+      micro: 'A place for curiosity, making things, and joyful discoveries',
+      long: true,
+    },
+  },
+  '3': {
+    ru: {
+      label: 'Вариант 3 · Короткий',
+      title: [{ text: 'Растём, играем и открываем мир ' }, { text: 'на русском языке', em: true }],
+      hero: 'Книги, музыка, движение и творчество в небольших группах — пространство, где каждый ребёнок учится фантазировать, договариваться и радоваться своим открытиям.',
+      cta: 'Попробовать занятие',
+      long: true,
+    },
+    en: {
+      label: 'Option 3 · Short',
+      title: [{ text: 'We grow, play, and discover the world ' }, { text: 'in Russian', em: true }],
+      hero: 'Books, music, movement, and making things in small groups — a place where every child learns to imagine, to get along, and to enjoy their own discoveries.',
+      cta: 'Try a class',
+      long: true,
+    },
+  },
+} as const
+
+type HeroId = keyof typeof heroes
+
+function isHeroId(value: string | null): value is HeroId {
+  return value === '1' || value === '2' || value === '3'
+}
+
 function RegisterNotice() {
   const { lang } = useLang()
   const slug = useSearchParams().get('registered') || ''
@@ -102,27 +161,32 @@ function RegisterNotice() {
   )
 }
 
-export default function Page() {
+function Landing() {
   const { lang } = useLang()
   const t = text[lang]
   const en = lang === 'en'
+  const requested = useSearchParams().get('variant')
+  const variant: HeroId = isHeroId(requested) ? requested : '1'
+  const hero = heroes[variant][lang]
 
   return (
     <main className="site-shell">
       <Suspense fallback={null}><RegisterNotice /></Suspense>
+      <nav className="variant-bar" aria-label={en ? 'Landing page options' : 'Варианты главной'}>
+        {(Object.keys(heroes) as HeroId[]).map((id) => (
+          <Link key={id} href={id === '1' ? '/' : `/?variant=${id}`} className={id === variant ? 'is-on' : ''} aria-current={id === variant ? 'page' : undefined}>{heroes[id][lang].label}</Link>
+        ))}
+      </nav>
       <section className="hero-section">
         <div className="hero-copy">
           <p className="eyebrow"><Sparkles size={15} /> {t.eyebrow}</p>
-          <h1>{t.titleA}<br /><em>{t.titleB}</em><br />{t.titleC}<br />{t.titleD}</h1>
-          <p className="hero-text">{t.hero}</p>
-          <a href="#activities" className="primary-button">{t.choose} <ArrowRight size={17} /></a>
+          <h1 className={'long' in hero && hero.long ? 'hero-title is-long' : 'hero-title'}>{hero.title.map((part) => <span key={part.text}>{'em' in part && part.em ? <em>{part.text}</em> : part.text}{'breakAfter' in part && part.breakAfter ? <br /> : null}</span>)}</h1>
+          <p className="hero-text">{hero.hero}</p>
+          <a href="#activities" className="primary-button">{hero.cta} <ArrowRight size={17} /></a>
+          {'micro' in hero && hero.micro ? <p className="hero-micro">{hero.micro}</p> : null}
         </div>
-        <div className="hero-art" aria-label={t.art}>
-          <div className="hero-sun" /><div className="hero-blob blob-one" /><div className="hero-blob blob-two" />
-          <div className="hero-card card-book"><span>{en ? 'A' : 'А'}</span><small>{t.book}</small></div>
-          <div className="hero-card card-shape"><Heart size={27} fill="currentColor" /><small>{t.play}</small></div>
-          <div className="hero-note">{t.noteA}<br /><strong>{t.noteB}</strong></div>
-          <div className="hero-ground" />
+        <div className="hero-mark">
+          <img src="/images/hero-mark.png" alt={en ? 'Tutti Frutti, a creative space for children' : 'Tutti Frutti, творческое пространство для детей'} />
         </div>
       </section>
 
@@ -130,12 +194,20 @@ export default function Page() {
 
       <section id="activities" className="activities-section">
         <div className="section-heading"><div><p className="eyebrow">{t.projects}</p><h2>{t.pickA}<br /><em>{t.pickB}</em></h2></div><p>{t.pickText}</p></div>
-        <div className="activity-grid">{activities.map((item, index) => <Link href={`/activities/${item.slug}`} className={`activity-card ${item.accent}`} key={item.slug}><div className="activity-top"><span className="activity-index">0{index + 1}</span><span className="activity-age">{en ? item.ageEn : item.age}</span></div><div className="activity-photo"><img src={item.image} alt="" /></div><div className="activity-symbol">{en ? item.symbolEn : item.symbol}</div><h3>{en ? item.titleEn : item.title}</h3>{!en && item.titleEn !== item.title && <p className="activity-en">{item.titleEn}</p>}<p>{en ? item.descriptionEn : item.description}</p><span className="card-link">{t.more} <ArrowRight size={16} /></span></Link>)}</div>
+        <div className="activity-grid">{activities.map((item, index) => <Link href={`/activities/${item.slug}`} className={`activity-card ${item.accent}${item.slug === 'live-letters' ? ' is-centered' : ''}`} key={item.slug}><div className="activity-top"><span className="activity-index">0{index + 1}</span><span className="activity-age">{en ? item.ageEn : item.age}</span></div><div className="activity-photo"><img src={item.image} alt="" /></div><div className="activity-symbol">{en ? item.symbolEn : item.symbol}</div><h3>{en ? item.titleEn : item.title}</h3>{!en && item.titleEn !== item.title && <p className="activity-en">{item.titleEn}</p>}<p>{en ? item.descriptionEn : item.description}</p><span className="card-link">{t.more} <ArrowRight size={16} /></span></Link>)}</div>
       </section>
 
       <section id="about" className="about-section"><div className="about-stamp"><img src="/images/logo.png" alt="tutti-frutti" /></div><div><p className="eyebrow">{t.about}</p><h2>{t.aboutA}<br /><em>{t.aboutB}</em></h2><div className="about-story">{t.aboutParagraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div><Link href="/#activities" className="text-link" onClick={(event) => { event.preventDefault(); document.getElementById('activities')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); history.pushState(null, '', '/#activities') }}>{t.account} <ArrowRight size={16} /></Link></div></section>
       <footer id="contact"><div><Link href="/" className="brand"><span className="brand-mark"><img src="/images/logo.png" alt="" /></span><span>tutti-frutti</span></Link><p>{t.tagline}</p></div><div className="footer-contact"><p>{t.online}</p><a href="mailto:tuttifruttiphiladelphia@gmail.com">tuttifruttiphiladelphia@gmail.com</a></div><div className="footer-language"><Globe2 size={16} /> {t.language}</div></footer>
     </main>
+  )
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={null}>
+      <Landing />
+    </Suspense>
   )
 }
 
