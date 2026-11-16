@@ -34,7 +34,6 @@ const text = {
     projects: 'Мои проекты',
     pickA: 'Выберите своё',
     pickB: 'приключение',
-    pickText: 'Каждое занятие — это пространство, где ребёнок может быть собой, пробовать новое и расти в своём темпе.',
     more: 'Подробнее',
     about: 'Про пространство',
     aboutA: 'Растём',
@@ -70,7 +69,6 @@ const text = {
     projects: 'My projects',
     pickA: 'Choose your',
     pickB: 'adventure',
-    pickText: 'Each class is a space where a child can be themselves, try something new, and grow at their own pace.',
     more: 'Details',
     about: 'About the space',
     aboutA: 'We grow',
@@ -193,11 +191,11 @@ function Landing() {
       <section className="trust-row" aria-label={en ? 'Our advantages' : 'Наши преимущества'}><div><Users size={20} /><span>{t.advantageGroups}</span></div><div><Globe2 size={20} /><span>{t.advantageLanguage}</span></div><div><Sparkles size={20} /><span>{t.advantagePlay}</span></div></section>
 
       <section id="activities" className="activities-section">
-        <div className="section-heading"><div><p className="eyebrow">{t.projects}</p><h2>{t.pickA}<br /><em>{t.pickB}</em></h2></div><p>{t.pickText}</p></div>
-        <div className="activity-grid">{activities.map((item, index) => <Link href={`/activities/${item.slug}`} className={`activity-card ${item.accent}${item.slug === 'live-letters' ? ' is-centered' : ''}`} key={item.slug}><div className="activity-top"><span className="activity-index">0{index + 1}</span><span className="activity-age">{en ? item.ageEn : item.age}</span></div><div className="activity-photo"><img src={item.image} alt="" /></div><div className="activity-symbol">{en ? item.symbolEn : item.symbol}</div><h3>{en ? item.titleEn : item.title}</h3>{!en && item.titleEn !== item.title && <p className="activity-en">{item.titleEn}</p>}<p>{en ? item.descriptionEn : item.description}</p><span className="card-link">{t.more} <ArrowRight size={16} /></span></Link>)}</div>
+        <div className="section-heading"><div><p className="eyebrow">{t.projects}</p><h2>{t.pickA}<br /><em>{t.pickB}</em></h2></div></div>
+        <div id="projects" className="activity-grid">{activities.map((item, index) => <Link href={`/activities/${item.slug}`} className={`activity-card ${item.accent}${item.slug === 'live-letters' ? ' is-centered' : ''}`} key={item.slug}><div className="activity-top"><span className="activity-index">0{index + 1}</span><span className="activity-age">{en ? item.ageEn : item.age}</span></div><div className="activity-photo"><img src={item.image} alt="" /></div><div className="activity-symbol">{en ? item.symbolEn : item.symbol}</div><h3>{en ? item.titleEn : item.title}</h3>{!en && item.titleEn !== item.title && <p className="activity-en">{item.titleEn}</p>}<p>{en ? item.descriptionEn : item.description}</p><span className="card-link">{t.more} <ArrowRight size={16} /></span></Link>)}</div>
       </section>
 
-      <section id="about" className="about-section"><div className="about-stamp"><img src="/images/logo.png" alt="tutti-frutti" /></div><div><p className="eyebrow">{t.about}</p><h2>{t.aboutA}<br /><em>{t.aboutB}</em></h2><div className="about-story">{t.aboutParagraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div><Link href="/#activities" className="text-link" onClick={(event) => { event.preventDefault(); document.getElementById('activities')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); history.pushState(null, '', '/#activities') }}>{t.account} <ArrowRight size={16} /></Link></div></section>
+      <section id="about" className="about-section"><div className="about-copy"><p className="eyebrow">{t.about}</p><h2>{t.aboutA} <em>{t.aboutB}</em></h2><div className="about-story">{t.aboutParagraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div><Link href="/#activities" className="text-link" onClick={(event) => { event.preventDefault(); document.getElementById('activities')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); history.pushState(null, '', '/#activities') }}>{t.account} <ArrowRight size={16} /></Link></div><div className="about-stamp"><img src="/images/hero-mark.png" alt="tutti-frutti" /></div></section>
       <footer id="contact"><div><Link href="/" className="brand"><span className="brand-mark"><img src="/images/logo.png" alt="" /></span><span>tutti-frutti</span></Link><p>{t.tagline}</p></div><div className="footer-contact"><p>{t.online}</p><a href="mailto:tuttifruttiphiladelphia@gmail.com">tuttifruttiphiladelphia@gmail.com</a></div><div className="footer-language"><Globe2 size={16} /> {t.language}</div></footer>
     </main>
   )
