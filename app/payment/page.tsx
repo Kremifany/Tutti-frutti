@@ -14,7 +14,7 @@ const text = {
     done: 'Готово',
     enrolled: 'Вы записаны!',
     sent: 'Оплата прошла. Занятие и дата сохранены в кабинете.',
-    open: 'На сайт',
+    open: 'В кабинет',
     payment: 'Оплата',
     secure: 'Демо-оплата',
     confirmA: 'Оплатите',
@@ -35,7 +35,7 @@ const text = {
     done: 'Done',
     enrolled: 'You’re enrolled!',
     sent: 'Payment went through. The class and date are saved in your account.',
-    open: 'Back to the site',
+    open: 'Open the account',
     payment: 'Payment',
     secure: 'Demo payment',
     confirmA: 'Pay for',
@@ -81,7 +81,7 @@ function PaymentForm() {
 
   useEffect(() => {
     if (!activity || isPending || session) return
-    router.replace(`/sign-in?next=${encodeURIComponent(paymentPath(activity))}`)
+    router.replace(`/register?next=${encodeURIComponent(paymentPath(activity))}`)
   }, [activity, isPending, session, router])
 
   if (!activity) {
@@ -97,6 +97,8 @@ function PaymentForm() {
     )
   }
 
+  if (isPending || !session) return null
+
   return (
     <main className="form-page">
       <div className="payment-card">
@@ -105,7 +107,7 @@ function PaymentForm() {
           <p className="eyebrow">{t.done}</p>
           <h1>{t.enrolled}</h1>
           <p className="form-lead">{program} · {classDate ? formatDay(classDate, lang) : ''}. {t.sent}</p>
-          <Link href={`/activities/${activity}?registered=1`} className="primary-button form-button">{t.open}</Link>
+          <Link href="/account" className="primary-button form-button">{t.open}</Link>
         </> : <>
           <div className="stripe-head"><span><CreditCard size={20} /> {t.payment}</span><small>DEMO</small></div>
           <p className="eyebrow">{t.secure}</p>

@@ -40,6 +40,15 @@ const text = {
   },
 }
 
+function initials(name: string, email: string) {
+  const fromName = name.trim().split(/\s+/).filter(Boolean)
+  const fromEmail = email.split('@')[0]?.split(/[.\-_]+/).filter(Boolean) ?? []
+  const parts = fromName.length ? fromName : fromEmail
+  if (!parts.length) return '•'
+  const chars = parts.length > 1 ? [parts[0][0], parts[parts.length - 1][0]] : [parts[0][0]]
+  return chars.join('').toLocaleUpperCase()
+}
+
 export function SiteHeader() {
   const { lang, setLang } = useLang()
   const t = text[lang]
@@ -82,7 +91,10 @@ export function SiteHeader() {
           <Link href="/#projects" onClick={(event) => goToSection(event, 'projects')}>{t.projects}</Link>
           <Link href="/#about" onClick={(event) => goToSection(event, 'about')}>{t.about}</Link>
           <Link href="/#contact" onClick={(event) => goToSection(event, 'contact')}>{t.contact}</Link>
-          {isPending ? null : session ? <><Link href={destinationForRole(session.user.role)} className="nav-login" onClick={() => setMenuOpen(false)}>{t.account} <ArrowRight size={15} /></Link><button className="nav-text" type="button" onClick={() => authClient.signOut().then(() => { window.location.href = '/' })}>{t.signOut}</button></> : <Link href="/sign-in" className="nav-login" onClick={() => setMenuOpen(false)}>{t.signIn} <ArrowRight size={15} /></Link>}
+          {isPending ? null : session ? <>
+            <Link href={destinationForRole(session.user.role)} className="header-initials" aria-label={`${t.account}, ${session.user.name || session.user.email}`} title={session.user.name || session.user.email} onClick={() => setMenuOpen(false)}>{initials(session.user.name || '', session.user.email || '')}</Link>
+            <button className="nav-text" type="button" onClick={() => authClient.signOut().then(() => { window.location.href = '/' })}>{t.signOut}</button>
+          </> : <Link href="/sign-in" className="nav-login" onClick={() => setMenuOpen(false)}>{t.signIn} <ArrowRight size={15} /></Link>}
           <button className="theme-switch" type="button" onClick={() => setDarkMode((value) => !value)} aria-label={darkMode ? t.themeLight : t.themeDark}>{darkMode ? <Sun size={15} /> : <Moon size={15} />}</button>
           <div className="lang-switch" role="group" aria-label={t.language}>
             <button type="button" className={lang === 'ru' ? 'is-active' : ''} onClick={() => setLang('ru')}>RU</button>
