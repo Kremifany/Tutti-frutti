@@ -188,7 +188,14 @@ html,body{overflow-x:clip}
 .home-card.lavender{background:#ebe3f3}.home-card.lavender i{background:#a08bb8}
 .home-card.coral{background:#f8e4d6}.home-card.coral i{background:#e07a62}
 .home-card:hover{transform:translateY(-2px)}
-.home-foot{margin:36px calc(50% - 50vw) 0;padding:36px max(5vw,calc(50vw - 560px)) 72px;background:#f7f4ee url('/images/home/footer-leaves.jpg') center bottom / min(100%,1100px) auto no-repeat;display:flex;justify-content:space-between;align-items:flex-end;gap:18px}
+.home-foot{margin:36px calc(50% - 50vw) 0;background:#f7f4ee}
+.home-foot-art{position:relative}
+.home-foot-art>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 42%;display:block}
+.home-foot-row{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:18px;padding:28px max(5vw,calc(50vw - 560px));font-weight:700;color:#282522}
+.home-foot-row p{margin:4px 0 0;font-weight:700;font-size:16px;line-height:1.2;color:#282522}
+.home-foot .brand,.home-foot a,.home-foot .footer-language{font-weight:700;color:#282522}
+.home-foot .footer-contact{text-align:center}
+.home-foot .footer-social{justify-content:center}
 html[data-theme='dark'] .home-kicker{color:#efc46d}
 html[data-theme='dark'] .home-quote{color:#e9866f}
 html[data-theme='dark'] .home-panel{background:#2c2622}
@@ -198,6 +205,75 @@ html[data-theme='dark'] .home .primary-button,html[data-theme='dark'] .home .pri
 .home-hero-art{justify-self:start}
 .home-split img{height:240px}
 .home-split img.home-feel{width:100%;height:auto;object-fit:cover;object-position:center;border-radius:36px}
-.home-foot{flex-direction:column;align-items:flex-start}
+.home-foot-row{flex-direction:column;align-items:flex-start;padding:22px 5vw}
 .brand-studio{max-width:150px}
+}
+.grow-page{max-width:1120px;margin:0 auto;padding:18px 5vw 0;color:#3a2a22}
+.grow-page h1,.grow-page h2,.grow-quote{font-family:var(--font-serif),Georgia,serif;font-weight:500;letter-spacing:-.03em;color:#3a2a22}
+.grow-page h1{font-size:clamp(64px,8vw,104px);line-height:.9;margin:10px 0 8px}
+.grow-page h2{font-size:clamp(28px,3.2vw,40px);line-height:1.15;margin:0 0 12px}
+.grow-crumb{margin:0 0 18px;color:#8a8178;font-size:14px}
+.grow-crumb a:hover{color:#3a2a22}
+.grow-hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.82fr);gap:28px;align-items:center}
+.grow-hero>*{min-width:0}
+.grow-hero>img{width:100%;max-width:100%;height:auto;max-height:none;object-fit:contain;object-position:center;overflow:visible;display:block}
+.grow-badge{display:inline-flex;align-items:center;gap:8px;margin:0;padding:7px 14px;border-radius:999px;background:#e5f0d8;color:#5d7348;font-size:14px;font-weight:700}
+.grow-badge svg{width:16px;height:16px}
+.grow-hero h2{font-size:clamp(26px,3vw,36px)}
+.grow-hero hr{width:86px;height:3px;margin:0 0 14px;border:0;background:#7d9a62}
+.grow-lead{max-width:480px;margin:0;line-height:1.55}
+.grow-page .primary-button{background:#d2644a;color:#fff;border:0;border-radius:999px}
+.grow-page .primary-button:hover{background:#c0563d}
+.grow-page .date-offers{max-width:520px}
+.grow-base,.grow-try{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.9fr);gap:28px;align-items:center;margin-top:34px;padding:28px;border-radius:28px}
+.grow-base{background:#eef3e6}
+.grow-base p,.grow-try p,.grow-join p{margin:0;line-height:1.55}
+.grow-base img,.grow-try img,.grow-photos img{width:100%;object-fit:cover;border-radius:22px;display:block}
+.grow-base img{height:280px;object-position:center top}
+.grow-do{margin-top:40px}
+.grow-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grow-card{display:flex;gap:12px;align-items:flex-start;padding:16px;border-radius:18px}
+.grow-card i,.grow-help i{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;flex:none}
+.grow-card strong{display:block;margin-bottom:4px}
+.grow-card p{margin:0;line-height:1.4;font-size:15px}
+.grow-card.sun,.grow-help.sun i{background:#f8e7a8}
+.grow-card.peach,.grow-help.peach i{background:#f8ddd4}
+.grow-card.sage,.grow-help.sage i{background:#e3edd8}
+.grow-card.coral,.grow-help.coral i{background:#f6d7cc}
+.grow-card i,.grow-help i{background:#fff}
+.grow-card.sun i{background:#f3c94e}
+.grow-card.peach i{background:#f0b5a4}
+.grow-card.sage i{background:#b7d3a4}
+.grow-card.coral i{background:#f0b09a}
+.grow-photos{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.grow-photos img{height:280px}
+.grow-photos img:first-child{object-position:center 42%}
+.grow-photos img:last-child{object-position:center 22%}
+.grow-try{background:#f8efe4}
+.grow-try img{height:320px;object-position:center 12%}
+.grow-helps{margin-top:40px}
+.grow-helps>div{display:grid;grid-template-columns:1fr 1fr;gap:14px 28px}
+.grow-help{display:flex;align-items:center;gap:12px;font-weight:700}
+.grow-help.sun i{background:#f8e7a8}
+.grow-help.peach i{background:#f8ddd4}
+.grow-help.sage i{background:#e3edd8}
+.grow-help.coral i{background:#f6d7cc}
+.grow-quote{text-align:center;font-style:italic;font-size:clamp(26px,3vw,36px);line-height:1.3;margin:36px 0;padding:28px 18px;border-radius:28px;background:#f6e7c2}
+.grow-join{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(180px,.9fr) auto;gap:18px;align-items:center;margin-top:8px;padding:22px 24px;border-radius:24px;background:#e7f0dc}
+.grow-join h2{margin-bottom:8px}
+.grow-ages{display:inline-block;padding:6px 12px;border-radius:999px;background:#fff;font-size:14px;font-weight:700}
+html[data-theme='dark'] .grow-page,html[data-theme='dark'] .grow-page h1,html[data-theme='dark'] .grow-page h2,html[data-theme='dark'] .grow-quote{color:var(--ink)}
+html[data-theme='dark'] .grow-badge{background:#2c3326;color:#d5e4c4}
+html[data-theme='dark'] .grow-base,html[data-theme='dark'] .grow-try,html[data-theme='dark'] .grow-join{background:#2c2622}
+html[data-theme='dark'] .grow-card.sun{background:#3a3424}
+html[data-theme='dark'] .grow-card.peach{background:#3a2c28}
+html[data-theme='dark'] .grow-card.sage{background:#2c3328}
+html[data-theme='dark'] .grow-card.coral{background:#3a2e28}
+html[data-theme='dark'] .grow-quote{background:#3a3424}
+html[data-theme='dark'] .grow-ages{background:#211d1b}
+html[data-theme='dark'] .grow-page .primary-button,html[data-theme='dark'] .grow-page .primary-button:hover{color:#fff;background:#d2644a}
+@media(max-width:800px){
+.grow-hero,.grow-base,.grow-try,.grow-cards,.grow-photos,.grow-helps>div,.grow-join{grid-template-columns:1fr}
+.grow-page h1{font-size:64px}
+.grow-base img,.grow-try img,.grow-photos img{height:240px}
 }
