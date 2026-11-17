@@ -47,7 +47,7 @@ async function waitForDatabase() {
 await waitForDatabase()
 await pool.query(readFileSync(new URL('./schema.sql', import.meta.url), 'utf8'))
 
-const email = (process.env.OWNER_EMAIL || '').toLowerCase()
+const email = (process.env.OWNER_EMAIL || '').trim().replace(/^['"]|['"]$/g, '').trim().toLowerCase()
 const password = process.env.OWNER_PASSWORD
 if (!email || !password) throw new Error('OWNER_EMAIL and OWNER_PASSWORD are required')
 
