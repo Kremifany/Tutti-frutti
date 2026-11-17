@@ -11,8 +11,9 @@ const text = {
   ru: {
     home: 'tutti-frutti — главная',
     nav: 'Основная навигация',
-    projects: 'Проекты',
-    about: 'О нас',
+    studio: 'Детская творческая образовательная студия',
+    projects: 'Занятия',
+    about: 'Обо мне',
     contact: 'Контакты',
     signIn: 'Войти',
     account: 'Кабинет',
@@ -26,8 +27,9 @@ const text = {
   en: {
     home: 'tutti-frutti — home',
     nav: 'Main navigation',
-    projects: 'Projects',
-    about: 'About',
+    studio: 'A children’s creative learning studio',
+    projects: 'Classes',
+    about: 'About me',
     contact: 'Contact',
     signIn: 'Sign in',
     account: 'Account',
@@ -85,7 +87,10 @@ export function SiteHeader() {
       <div className="site-header-inner">
         <Link href="/" className="brand" aria-label={t.home} onClick={goHome}>
           <span className="brand-mark"><img src="/images/logo.png" alt="" /></span>
-          <span>tutti-frutti</span>
+          <span className="brand-copy">
+            <span className="brand-word">Tutti-Frutti</span>
+            <span className="brand-studio">{t.studio}</span>
+          </span>
         </Link>
         <nav className={menuOpen ? 'site-nav is-open' : 'site-nav'} aria-label={t.nav}>
           <Link href="/#projects" onClick={(event) => goToSection(event, 'projects')}>{t.projects}</Link>
