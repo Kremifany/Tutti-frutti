@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { ArrowRight, Check } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { GrowDetail } from '@/components/grow-detail'
 import { ScrollToTop } from '@/components/scroll-to-top'
 import { StoryCarousel, firstFutureStoryIndex } from '@/components/story-carousel'
 import { useLang } from '@/components/language'
@@ -141,7 +142,7 @@ export function ActivityDetail({ slug }: { slug: string }) {
   const [offers, setOffers] = useState<Offer[] | null>(null)
   const register = isClassSlug(slug) ? checkoutPath(slug) : '/#activities'
   const href = session || !isClassSlug(slug) ? register : `/register?next=${encodeURIComponent(register)}`
-  const label = lang === 'en' ? 'To register' : 'Записаться'
+  const label = slug === 'grow' ? (lang === 'en' ? 'Enroll' : 'Записаться') : (lang === 'en' ? 'To register' : 'Записаться')
   const letters = slug === 'live-letters'
 
   useEffect(() => {
@@ -169,6 +170,10 @@ export function ActivityDetail({ slug }: { slug: string }) {
       })}
     </div>
   ) : offers === null ? null : <Link className="primary-button" href={href}>{label} <ArrowRight size={17} /></Link>)
+
+  if (slug === 'grow') {
+    return <GrowDetail lang={lang} justRegistered={justRegistered} signup={signup} />
+  }
 
   return (
     <main className="detail-page">
