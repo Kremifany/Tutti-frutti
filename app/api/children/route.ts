@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { and, eq, isNull } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
-import { childNames, namesAlreadyRegistered } from '@/lib/child-names'
+import { childNames } from '@/lib/child-names'
 import { classDateFromChoice, isClassSlug } from '@/lib/classes'
 import { db } from '@/lib/db'
 import { child, product } from '@/lib/schema'
@@ -24,13 +24,25 @@ export async function POST(request: Request) {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   const body = await request.json().catch(() => null) as { name?: string; names?: string[]; age?: string; notes?: string; activity?: string; startsAt?: string; paid?: boolean; productId?: string } | null
+  if (typeof body?.name === 'string' && !body.activity && !body.productId && !Array.isArray(body.names) && !body.startsAt) {
+    const name = childNames(body.name)[0]
+    if (!name) return NextResponse.json({ error: 'missing' }, { status: 400 })
+    const rows = await db.select().from(child).where(eq(child.userId, session.user.id))
+    const existing = rows.find((row) => row.name.trim().toLowerCase() === name.toLowerCase())
+    if (existing) return NextResponse.json(existing)
+    const [row] = await db.insert(child).values({
+      id: randomUUID(),
+      userId: session.user.id,
+      name,
+      age: '—',
+      paid: false,
+    }).returning()
+    return NextResponse.json(row)
+  }
   if (Array.isArray(body?.names) && !body.startsAt && !body.productId) {
     const activity = body.activity && isClassSlug(body.activity) ? body.activity : null
     const names = childNames(body.names)
     if (!activity || !names.length) return NextResponse.json({ error: 'missing' }, { status: 400 })
-    const paid = await db.select({ name: child.name }).from(child).where(and(eq(child.userId, session.user.id), eq(child.activity, activity), eq(child.paid, true)))
-    const registered = namesAlreadyRegistered(names, paid.map((row) => row.name))
-    if (registered.length) return NextResponse.json({ error: 'registered', names: registered }, { status: 409 })
     await db.delete(child).where(and(eq(child.userId, session.user.id), eq(child.activity, activity), eq(child.paid, false), isNull(child.stripeSessionId)))
     const rows = []
     for (const name of names) {

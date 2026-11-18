@@ -7,6 +7,15 @@ import { child } from '@/lib/schema'
 import { getSession } from '@/lib/session'
 import { classReturnUrl, pointClassPaymentsHome, pricingTableOffers, stripeClient } from '@/lib/stripe'
 
+function sameClassDate(left: Date | null, right: string | null) {
+  if (!left || !right) return false
+  const other = new Date(right)
+  if (Number.isNaN(other.getTime())) return false
+  return left.getFullYear() === other.getFullYear()
+    && left.getMonth() === other.getMonth()
+    && left.getDate() === other.getDate()
+}
+
 export async function POST(request: Request) {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
@@ -18,11 +27,13 @@ export async function POST(request: Request) {
 
   const rows = await db.select({ id: child.id, name: child.name }).from(child).where(and(eq(child.userId, session.user.id), inArray(child.id, childIds), eq(child.paid, false)))
   if (rows.length !== childIds.length) return NextResponse.json({ error: 'missing' }, { status: 400 })
-  const paid = await db.select({ name: child.name }).from(child).where(and(eq(child.userId, session.user.id), eq(child.activity, activity), eq(child.paid, true)))
-  const registered = namesAlreadyRegistered(rows.map((row) => row.name), paid.map((row) => row.name))
-  if (registered.length) return NextResponse.json({ error: 'registered', names: registered }, { status: 409 })
   const offers = await pricingTableOffers(activity)
-  if (!offers.some((offer) => offer.priceId === priceId)) return NextResponse.json({ error: 'missing' }, { status: 400 })
+  const offer = offers.find((item) => item.priceId === priceId)
+  if (!offer) return NextResponse.json({ error: 'missing' }, { status: 400 })
+  const paid = await db.select({ name: child.name, startsAt: child.startsAt }).from(child).where(and(eq(child.userId, session.user.id), eq(child.activity, activity), eq(child.paid, true)))
+  const sameDate = paid.filter((row) => sameClassDate(row.startsAt, offer.startsAt)).map((row) => row.name)
+  const registered = namesAlreadyRegistered(rows.map((row) => row.name), sameDate)
+  if (registered.length) return NextResponse.json({ error: 'registered', names: registered }, { status: 409 })
 
   const stripe = stripeClient()
   if (!stripe) return NextResponse.json({ error: 'missing' }, { status: 400 })

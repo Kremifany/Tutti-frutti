@@ -9,17 +9,17 @@ const text = {
   ru: {
     eyebrow: 'Запись',
     whoA: 'Кого записываем',
-    whoLead: 'Оплачивает родитель. Выберите ребёнка из кабинета или напишите новое имя. Можно до трёх детей.',
+    whoLead: 'Оплачивает родитель. Выберите ребёнка из кабинета или введите новое имя и нажмите «Добавить ребёнка». Можно до трёх детей.',
     yours: 'Ваши дети',
     child: 'Имя ребёнка',
     placeholder: 'Например, Маша',
     add: 'Добавить ребёнка',
-    remove: 'Убрать',
     continue: 'Дальше к оплате',
     edit: 'Изменить имена',
-    missingName: 'Введите имя ребёнка.',
-    already: (name: string) => `Ребёнок ${name} уже записан на это занятие.`,
+    missingName: 'Добавьте ребёнка или выберите имя из кабинета.',
+    already: (name: string) => `Ребёнок ${name} уже записан на эту дату.`,
     failed: 'Не удалось сохранить имена.',
+    addFailed: 'Не удалось добавить ребёнка.',
     missing: (name: string) => `Таблица цен Stripe для занятия «${name}» ещё не подключена.`,
     empty: (name: string) => `Для занятия «${name}» в Stripe пока нет цен.`,
     opening: 'Открываем оплату…',
@@ -27,17 +27,17 @@ const text = {
   en: {
     eyebrow: 'Registration',
     whoA: 'Who is joining',
-    whoLead: 'The parent pays. Choose a child already in your account, or add a new name. Up to three children.',
+    whoLead: 'The parent pays. Choose a child already in your account, or type a new name and click “Add a child”. Up to three children.',
     yours: 'Your children',
     child: 'Child’s name',
     placeholder: 'For example, Masha',
     add: 'Add a child',
-    remove: 'Remove',
     continue: 'Continue to payment',
     edit: 'Edit names',
-    missingName: 'Enter the child’s name.',
-    already: (name: string) => `The child ${name} already registered for that activity.`,
+    missingName: 'Add a child or choose one from your account.',
+    already: (name: string) => `The child ${name} is already registered for that date.`,
     failed: 'Could not save the names.',
+    addFailed: 'Could not add the child.',
     missing: (name: string) => `The Stripe pricing table for ${name} is not connected yet.`,
     empty: (name: string) => `${name} has no prices in Stripe yet.`,
     opening: 'Opening payment…',
@@ -51,14 +51,15 @@ export function StripePricingTable({ activity, publishableKey, pricingTableId, p
   const ready = Boolean(publishableKey && pricingTableId)
   const [known, setKnown] = useState<string[]>([])
   const [picked, setPicked] = useState<string[]>([])
-  const [names, setNames] = useState([''])
+  const [draft, setDraft] = useState('')
   const [saved, setSaved] = useState<{ id: string; name: string }[] | null>(null)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [chosenPrice, setChosenPrice] = useState(priceId)
   const [offers, setOffers] = useState<{ priceId: string; name: string; amount: number; currency: string }[] | null>(null)
   const payFor = chosenPrice || priceId
-  const openSlots = 3 - picked.length - names.length
+  const canAdd = picked.length < 3
+  const canSubmitName = Boolean(childNames(draft)[0])
 
   useEffect(() => {
     fetch('/api/children?list=names').then(async (response) => {
@@ -66,7 +67,6 @@ export function StripePricingTable({ activity, publishableKey, pricingTableId, p
       const list = childNames(await response.json())
       setKnown(list)
       if (list.length === 1) setPicked(list)
-      if (list.length) setNames((current) => current.length === 1 && !current[0].trim() ? [] : current)
     }).catch(() => {})
   }, [])
 
@@ -113,9 +113,33 @@ export function StripePricingTable({ activity, publishableKey, pricingTableId, p
   const toggleChild = (name: string) => {
     setPicked((current) => {
       if (current.includes(name)) return current.filter((item) => item !== name)
-      if (current.length + names.length >= 3) return current
+      if (current.length >= 3) return current
       return [...current, name]
     })
+  }
+
+  const addChild = async () => {
+    const name = childNames(draft)[0]
+    if (!name) {
+      setError(t.missingName)
+      return
+    }
+    if (picked.length >= 3) return
+    setBusy(true)
+    setError('')
+    const response = await fetch('/api/children', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    })
+    setBusy(false)
+    if (!response.ok) {
+      setError(t.addFailed)
+      return
+    }
+    setKnown((current) => current.some((item) => item.toLowerCase() === name.toLowerCase()) ? current : [...current, name])
+    setPicked((current) => current.some((item) => item.toLowerCase() === name.toLowerCase()) || current.length >= 3 ? current : [...current, name])
+    setDraft('')
   }
 
   return (
@@ -124,7 +148,7 @@ export function StripePricingTable({ activity, publishableKey, pricingTableId, p
         {!saved ? (
           <form className="child-step" onSubmit={async (event) => {
             event.preventDefault()
-            const chosen = childNames([...picked, ...names])
+            const chosen = childNames(picked)
             if (!chosen.length) {
               setError(t.missingName)
               return
@@ -156,14 +180,11 @@ export function StripePricingTable({ activity, publishableKey, pricingTableId, p
               <p className="child-label">{t.yours}</p>
               <div className="known-children">{known.map((name) => <button type="button" key={name} className={picked.includes(name) ? 'is-on' : ''} aria-pressed={picked.includes(name)} onClick={() => toggleChild(name)}>{name}</button>)}</div>
             </>}
-            {names.map((name, index) => (
-              <div className="child-row" key={index}>
-                <label>{t.child} {names.length > 1 ? index + 1 : ''}<input value={name} onChange={(event) => setNames(names.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} placeholder={t.placeholder} /></label>
-                {(names.length > 1 || known.length > 0) && <button type="button" className="link-button" onClick={() => setNames(names.filter((_, itemIndex) => itemIndex !== index))}>{t.remove}</button>}
-              </div>
-            ))}
+            {canAdd && (
+              <label>{t.child}<input value={draft} onChange={(event) => setDraft(event.target.value)} placeholder={t.placeholder} /></label>
+            )}
             <div className="child-actions">
-              {openSlots > 0 && <button type="button" className="link-button" onClick={() => setNames([...names, ''])}>{t.add}</button>}
+              {canAdd && <button type="button" className="link-button" disabled={busy || !canSubmitName} onClick={addChild}>{t.add}</button>}
             </div>
             {error && <p className="form-error">{error}</p>}
             <button className="primary-button form-button" disabled={busy}>{t.continue}</button>

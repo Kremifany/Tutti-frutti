@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Check } from 'lucide-react'
+import { ArrowRight, Calendar, Check, Clock, MapPin, Users } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { ScrollToTop } from '@/components/scroll-to-top'
 import { SiteFooter } from '@/components/site-footer'
@@ -31,6 +31,14 @@ const copy = {
     helps: ['Внимание и память', 'Мышление и речь', 'Координация и моторика', 'Эмоции и саморегуляция', 'Самостоятельность', 'Общение'],
     quoteA: 'С интересом к новому.',
     quoteB: 'С уверенностью в своих силах.',
+    button: 'Записаться на занятие',
+    whenTitle: 'Когда и где',
+    facts: [
+      { label: 'Возраст: 5–8 лет' },
+      { label: 'Продолжительность: 45–55 минут' },
+      { label: 'По средам, в 17:45' },
+      { label: '200 Geiger Rd, Philadelphia, PA' },
+    ],
     success: 'Запись на занятие «Расти» прошла успешно.',
   },
   en: {
@@ -59,9 +67,19 @@ const copy = {
     helps: ['Attention and memory', 'Thinking and speech', 'Coordination and motor skills', 'Emotions and self-regulation', 'Independence', 'Connection'],
     quoteA: 'With interest in something new.',
     quoteB: 'With confidence in their own strengths.',
+    button: 'Sign up for a class',
+    whenTitle: 'When and where',
+    facts: [
+      { label: 'Age: 5–8 years' },
+      { label: 'Length: 45–55 minutes' },
+      { label: 'Wednesdays at 5:45 pm' },
+      { label: '200 Geiger Rd, Philadelphia, PA' },
+    ],
     success: 'Registration for Grow was successful.',
   },
 } as const
+
+const factIcons = [Users, Clock, Calendar, MapPin] as const
 
 const cardTones = ['sun', 'peach', 'sage', 'coral'] as const
 const helpTones = ['sun', 'peach', 'sage', 'coral', 'sage', 'sage'] as const
@@ -102,7 +120,7 @@ export function GrowDetail({ lang, justRegistered, signup }: { lang: 'ru' | 'en'
           <h2>{t.kicker}</h2>
           <hr />
           <p className="grow-lead">{t.lead}</p>
-          <div id="grow-dates">{signup}</div>
+          <a className="primary-button" href="#grow-dates">{t.button} <ArrowRight size={17} /></a>
         </div>
         <img src="/images/grow-sprout.jpg" alt={t.heroAlt} />
       </section>
@@ -155,6 +173,18 @@ export function GrowDetail({ lang, justRegistered, signup }: { lang: 'ru' | 'en'
       </section>
 
       <p className="grow-quote">{t.quoteA}<br />{t.quoteB}</p>
+
+      <section className="grow-when" id="grow-dates">
+        <h2>{t.whenTitle}</h2>
+        <ul className="grow-facts">
+          {t.facts.map((fact, index) => {
+            const Icon = factIcons[index]
+            return <li key={fact.label}><i><Icon size={18} strokeWidth={1.8} /></i><span>{fact.label}</span></li>
+          })}
+        </ul>
+        <div className="grow-signup">{signup}</div>
+      </section>
+
       <SiteFooter />
     </main>
   )
