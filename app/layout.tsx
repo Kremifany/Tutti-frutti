@@ -1,8 +1,9 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Manrope, Playfair_Display } from 'next/font/google'
+import { cookies } from 'next/headers'
 import './globals.css'
-import { LanguageProvider } from '@/components/language'
+import { LanguageProvider, type Lang } from '@/components/language'
 import { ScrollToTop } from '@/components/scroll-to-top'
 import { SiteHeader } from '@/components/site-header'
 
@@ -35,15 +36,17 @@ export const viewport: Viewport = {
   ],
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const saved = (await cookies()).get('tf-lang')?.value
+  const lang: Lang = saved === 'en' || saved === 'ru' ? saved : 'ru'
   return (
-    <html lang="en" data-scroll-behavior="smooth">
+    <html lang={lang} data-scroll-behavior="smooth">
       <body className={`${manrope.variable} ${playfair.variable} antialiased`}>
-        <LanguageProvider>
+        <LanguageProvider initialLang={lang}>
           <ScrollToTop />
           <SiteHeader />
           {children}

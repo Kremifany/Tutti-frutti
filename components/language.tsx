@@ -9,22 +9,28 @@ const LanguageContext = createContext<{ lang: Lang; setLang: (lang: Lang) => voi
   setLang: () => {},
 })
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLangState] = useState<Lang>('ru')
+function asLang(value?: string | null): Lang | null {
+  return value === 'en' || value === 'ru' ? value : null
+}
+
+function persist(lang: Lang) {
+  localStorage.setItem('tf-lang', lang)
+  document.cookie = `tf-lang=${lang};path=/;max-age=31536000;samesite=lax`
+  document.documentElement.lang = lang
+}
+
+export function LanguageProvider({ children, initialLang = 'ru' }: { children: React.ReactNode; initialLang?: Lang }) {
+  const [lang, setLangState] = useState<Lang>(initialLang)
 
   useEffect(() => {
-    const saved = localStorage.getItem('tf-lang')
-    if (saved === 'en' || saved === 'ru') setLangState(saved)
-  }, [])
-
-  useEffect(() => {
-    document.documentElement.lang = lang
-  }, [lang])
+    const saved = asLang(localStorage.getItem('tf-lang')) || asLang(initialLang) || 'ru'
+    setLangState(saved)
+    persist(saved)
+  }, [initialLang])
 
   const setLang = (next: Lang) => {
     setLangState(next)
-    localStorage.setItem('tf-lang', next)
-    document.documentElement.lang = next
+    persist(next)
   }
 
   return <LanguageContext.Provider value={{ lang, setLang }}>{children}</LanguageContext.Provider>
