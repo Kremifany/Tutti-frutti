@@ -14,8 +14,7 @@ const text = {
     enroll: 'Запись на занятие',
     helloA: 'Давайте',
     helloB: 'познакомимся.',
-    helloLead: 'Создайте аккаунт. После этого сохранится запись на выбранную дату.',
-    helloLeadOpen: 'Создайте аккаунт. После этого выберите занятие.',
+    helloLead: 'Создайте аккаунт. После этого вы окажетесь на главной странице.',
     name: 'Ваше имя',
     namePlaceholder: 'Например, Анна',
     password: 'Пароль',
@@ -33,8 +32,7 @@ const text = {
     enroll: 'Enroll in a class',
     helloA: 'Let’s get',
     helloB: 'acquainted.',
-    helloLead: 'Create an account. The chosen date is saved right after that.',
-    helloLeadOpen: 'Create an account. Then choose a class.',
+    helloLead: 'Create an account. You’ll land on the main page after that.',
     name: 'Your name',
     namePlaceholder: 'For example, Anna',
     password: 'Password',
@@ -57,7 +55,7 @@ function RegisterForm() {
   const fromNext = next?.match(/\/activities\/([a-z0-9-]+)/)?.[1] || next?.match(/activity=([a-z0-9-]+)/)?.[1] || ''
   const activity = isClassSlug(requested) ? requested : isClassSlug(fromNext) ? fromNext : null
   const destination = next || (activity ? paymentPath(activity) : null)
-  const afterAccount = destination || '/?choose=1'
+  const afterAccount = '/'
   const { lang } = useLang()
   const t = text[lang]
   const router = useRouter()
@@ -80,7 +78,7 @@ function RegisterForm() {
       <div className="form-wrap">
         <p className="eyebrow">{t.enroll}</p>
         <h1>{t.helloA}<br /><em>{t.helloB}</em></h1>
-        <p className="form-lead">{activity ? `${classes[activity][lang]}. ${t.helloLead}` : t.helloLeadOpen}</p>
+        <p className="form-lead">{activity ? `${classes[activity][lang]}. ${t.helloLead}` : t.helloLead}</p>
         <GoogleButton label={t.google} unavailable={t.googleUnavailable} callbackURL={afterAccount} />
         <label>{t.name}<input value={name} onChange={(event) => setName(event.target.value)} placeholder={t.namePlaceholder} /></label>
         <label>Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" /></label>

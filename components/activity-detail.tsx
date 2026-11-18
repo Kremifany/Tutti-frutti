@@ -5,6 +5,7 @@ import { ArrowRight, Check } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { GrowDetail } from '@/components/grow-detail'
+import { LettersDetail } from '@/components/letters-detail'
 import { ScrollToTop } from '@/components/scroll-to-top'
 import { StoryCarousel, firstFutureStoryIndex } from '@/components/story-carousel'
 import { useLang } from '@/components/language'
@@ -142,8 +143,7 @@ export function ActivityDetail({ slug }: { slug: string }) {
   const [offers, setOffers] = useState<Offer[] | null>(null)
   const register = isClassSlug(slug) ? checkoutPath(slug) : '/#activities'
   const href = session || !isClassSlug(slug) ? register : `/register?next=${encodeURIComponent(register)}`
-  const label = slug === 'grow' ? (lang === 'en' ? 'Enroll' : 'Записаться') : (lang === 'en' ? 'To register' : 'Записаться')
-  const letters = slug === 'live-letters'
+  const label = slug === 'grow' || slug === 'live-letters' ? (lang === 'en' ? 'Enroll' : 'Записаться') : (lang === 'en' ? 'To register' : 'Записаться')
 
   useEffect(() => {
     if (!isClassSlug(slug)) return
@@ -175,18 +175,21 @@ export function ActivityDetail({ slug }: { slug: string }) {
     return <GrowDetail lang={lang} justRegistered={justRegistered} signup={signup} />
   }
 
+  if (slug === 'live-letters') {
+    return <LettersDetail lang={lang} justRegistered={justRegistered} signup={signup} />
+  }
+
   return (
     <main className="detail-page">
       <ScrollToTop />
       {justRegistered && <p className="register-success detail-success" role="status"><Check size={18} />{lang === 'en' ? `Registration for ${copy.title} was successful.` : `Запись на занятие «${copy.title}» прошла успешно.`}</p>}
-      {story ? <StoryCarousel href={href} lang={lang} index={storyIndex} onIndex={setStoryIndex} /> : !letters && item.image && <section className="detail-feature-image is-lead"><img src={item.image} alt={copy.alt} /></section>}
-      <section className={letters ? 'detail-heading letters-banner' : 'detail-heading'}>
-        {!letters && <p className="eyebrow">{copy.en}</p>}
-        {letters ? <h1 className="letters-art"><img src={lang === 'en' ? '/images/live_letters_eng_1.jpg' : '/images/live_letters_ru_1.jpg'} alt={lang === 'en' ? 'Live Letters' : 'Живые буквы'} /></h1> : <h1>{copy.title}</h1>}
+      {story ? <StoryCarousel href={href} lang={lang} index={storyIndex} onIndex={setStoryIndex} /> : item.image && <section className="detail-feature-image is-lead"><img src={item.image} alt={copy.alt} /></section>}
+      <section className="detail-heading">
+        <p className="eyebrow">{copy.en}</p>
+        <h1>{copy.title}</h1>
         <p className="detail-intro">{copy.intro}</p>
         {signup}
       </section>
-      {letters && <section className="detail-feature-image letters-poster"><img src={lang === 'en' ? '/images/Gemini_Generated_Image_kaxs4jkaxs4jkaxs.jfif' : '/images/live_letters_without_banner_ru.jpg'} alt={copy.alt} /></section>}
       <section className="detail-content">
         <div><p className="eyebrow">{copy.section}</p><h2>{copy.headingA}<br /><em>{copy.headingB}</em></h2></div>
         <ul>{copy.bullets.map((bullet) => <li key={bullet}><Check size={18} /> {bullet}</li>)}</ul>

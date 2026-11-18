@@ -110,7 +110,7 @@ export default function DashboardPage() {
         <Link href="/" className="back-link"><ArrowLeft size={15} /> {t.back}</Link>
       </aside>
       <section className="dashboard-main" aria-busy={loading}>
-        <header className="dashboard-header"><div><p className="eyebrow">{t.owner}</p><h1>{t.hello}</h1></div><div className="owner-avatar">К</div></header>
+        <header className="dashboard-header"><div><p className="eyebrow">{t.owner}</p><h1>{t.hello}</h1></div></header>
         <div className="stats-grid">
           <div><span>{t.people}</span>{loading ? <span className="skeleton stat-skeleton" /> : <strong>{people}</strong>}</div>
           <div><span>{t.registrations}</span>{loading ? <span className="skeleton stat-skeleton" /> : <strong>{rows.length}</strong>}</div>

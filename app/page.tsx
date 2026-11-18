@@ -61,7 +61,7 @@ const text = {
     feelTitle: 'Learning to feel and understand',
     feel: 'Everyone needs empathy: to make friends, reach an agreement, ask for help, and offer support. Talking about what book characters do, and playing together, children learn to listen to one another and see a situation from different sides.',
     feelAlt: 'Children and a teacher making something together',
-    worldTitle: 'We open the world together',
+    worldTitle: 'Discovering the world together',
     world: 'We read books and step into the stories, listen to music and make our own rhythms, meet the letters, explore, move, and create. There is room here for curiosity, unexpected questions, and children’s ideas.',
     worldAlt: 'An open book, a blue bird, and a castle',
     valuesLabel: 'How the classes feel',
