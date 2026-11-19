@@ -56,6 +56,17 @@ export const product = pgTable('product', {
   active: boolean('active').notNull().default(true),
 })
 
+export const storyEvent = pgTable('story_event', {
+  id: text('id').primaryKey(),
+  titleRu: text('title_ru').notNull(),
+  titleEn: text('title_en').notNull(),
+  imageUrl: text('image_url').notNull(),
+  endsAt: timestamp('ends_at', { withTimezone: true }).notNull(),
+  active: boolean('active').notNull().default(true),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
 export const child = pgTable('child', {
   id: text('id').primaryKey(),
   userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
@@ -71,4 +82,4 @@ export const child = pgTable('child', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
-export const schema = { user, session, account, verification, product, child }
+export const schema = { user, session, account, verification, product, storyEvent, child }

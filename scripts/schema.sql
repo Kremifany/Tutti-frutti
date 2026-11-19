@@ -72,6 +72,17 @@ CREATE TABLE IF NOT EXISTS product (
   active boolean NOT NULL DEFAULT true
 );
 
+CREATE TABLE IF NOT EXISTS story_event (
+  id text PRIMARY KEY,
+  title_ru text NOT NULL,
+  title_en text NOT NULL,
+  image_url text NOT NULL,
+  ends_at timestamptz NOT NULL,
+  active boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
 ALTER TABLE child ADD COLUMN IF NOT EXISTS product_id text REFERENCES product(id);
 ALTER TABLE child DROP COLUMN IF EXISTS amount;
 ALTER TABLE child DROP COLUMN IF EXISTS currency;
