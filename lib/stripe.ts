@@ -81,8 +81,10 @@ export async function pricingTableOffers(activity: ClassSlug): Promise<ClassOffe
   }
   rows.sort((a, b) => (a.startsAt || '9999').localeCompare(b.startsAt || '9999'))
   const now = Date.now()
-  const upcoming = rows.filter((row) => !row.startsAt || new Date(row.startsAt).getTime() > now)
-  return upcoming.length ? upcoming : rows
+  return rows.filter((row) => {
+    if (!row.startsAt) return false
+    return new Date(row.startsAt).getTime() > now
+  })
 }
 
 const months: Record<string, number> = {

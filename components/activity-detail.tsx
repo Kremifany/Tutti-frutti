@@ -144,6 +144,7 @@ export function ActivityDetail({ slug }: { slug: string }) {
   const register = isClassSlug(slug) ? checkoutPath(slug) : '/#activities'
   const href = session || !isClassSlug(slug) ? register : `/register?next=${encodeURIComponent(register)}`
   const label = slug === 'grow' || slug === 'live-letters' ? (lang === 'en' ? 'Enroll' : 'Записаться') : (lang === 'en' ? 'To register' : 'Записаться')
+  const noDates = lang === 'en' ? 'No available classes right now. Come back later.' : 'Сейчас нет доступных занятий. Загляните позже.'
 
   useEffect(() => {
     if (!isClassSlug(slug)) return
@@ -169,7 +170,7 @@ export function ActivityDetail({ slug }: { slug: string }) {
         )
       })}
     </div>
-  ) : offers === null ? null : <Link className="primary-button" href={href}>{label} <ArrowRight size={17} /></Link>)
+  ) : offers === null ? null : <p className="form-lead date-offers-empty">{noDates}</p>)
 
   if (slug === 'grow') {
     return <GrowDetail lang={lang} justRegistered={justRegistered} signup={signup} />
