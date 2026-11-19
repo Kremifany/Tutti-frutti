@@ -107,7 +107,7 @@
 .row-skeleton .dot{width:34px;height:34px;flex:none;border-radius:50%}
 @keyframes skeleton-shimmer{from{background-position:100% 0}to{background-position:0 0}}
 @media(prefers-reduced-motion:reduce){.skeleton{animation:none}}
-.account-classes{margin:0 0 28px}
+.account-classes{margin:18px 0 28px}
 .register-success{display:flex;align-items:center;gap:10px;margin:28px 0 0;padding:16px 18px;border-radius:16px;background:#e7f0e2;color:#2f4a32;font-weight:700}
 .detail-success{max-width:900px;margin:28px auto 0}
 .hero-text{max-width:540px}
