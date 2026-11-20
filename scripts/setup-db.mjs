@@ -112,4 +112,28 @@ for (const [slug, weekday, hours, minutes, name] of schedule) {
 }
 console.log('Class dates saved as products')
 
+const stories = [
+  ['/images/storytelling1.jpeg', '2026-01-18', 'Дерево желаний', 'The Wishing Tree'],
+  ['/images/storytelling2.jpeg', '2026-02-01', 'Человеткин', 'Stick Man'],
+  ['/images/storytelling3.jpeg', '2026-03-07', 'Тося-Бося', 'Tosya-Bosya'],
+  ['/images/storytelling4.jpeg', '2026-05-30', 'Мими балерина', 'Mimi the ballerina'],
+  ['/images/storytelling-2.png', '2026-06-21', 'Петсон идёт в поход', 'Findus goes camping'],
+  ['/images/storytelling5.jpeg', '2026-06-28', 'Петсон идёт в поход', 'Findus goes camping'],
+  ['/images/storytelling6.jpeg', '2026-08-08', 'Школа драконов', 'Dragon school'],
+  ['/images/storytelling7.jpeg', '2026-10-11', 'Элмер', 'Elmer'],
+  ['/images/storytelling8.jpeg', '2026-10-31', 'Ведьмина метла', 'The witch’s broom'],
+]
+const storyCount = await pool.query('select count(*)::int as count from story_event')
+if ((storyCount.rows[0]?.count || 0) === 0) {
+  const now = new Date()
+  for (const [imageUrl, day, titleRu, titleEn] of stories) {
+    await pool.query(
+      `insert into story_event (id, title_ru, title_en, dates_ru, dates_en, image_url, ends_at, active, created_at, updated_at)
+       values ($1, $2, $3, '', '', $4, $5, true, $6, $6)`,
+      [randomUUID(), titleRu, titleEn, imageUrl, new Date(`${day}T23:59:59`), now],
+    )
+  }
+  console.log('Storytelling posters seeded')
+}
+
 await pool.end()

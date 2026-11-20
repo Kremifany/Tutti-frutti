@@ -14,6 +14,10 @@ export function pricingTableFor(activity: ClassSlug) {
   return { publishableKey, pricingTableId, configured: Boolean(publishableKey && pricingTableId) }
 }
 
+export function isPricingTableId(value: string) {
+  return /^prctbl_[A-Za-z0-9]+$/.test(value)
+}
+
 export function stripeClient() {
   const key = process.env.STRIPE_SECRET_KEY
   if (!key) return null
@@ -24,12 +28,14 @@ export function classReturnUrl(origin: string) {
   return `${origin}/account`
 }
 
-export async function pointClassPaymentsHome(activity: ClassSlug, origin: string) {
+export async function pointClassPaymentsHome(activity: ClassSlug, origin: string, pricingTableId?: string) {
   const stripe = stripeClient()
   if (!stripe) return
   const url = classReturnUrl(origin)
   try {
-    const offers = await pricingTableOffers(activity)
+    const offers = pricingTableId
+      ? await offersFromPricingTable(pricingTableId, activity)
+      : await pricingTableOffers(activity)
     const priceIds = new Set(offers.map((offer) => offer.priceId))
     if (!priceIds.size) return
     const links = await stripe.paymentLinks.list({ active: true, limit: 100 })
@@ -55,10 +61,9 @@ export type ClassOffer = {
   currency: string
 }
 
-export async function pricingTableOffers(activity: ClassSlug): Promise<ClassOffer[]> {
+export async function offersFromPricingTable(pricingTableId: string, activity: ClassSlug): Promise<ClassOffer[]> {
   const secret = process.env.STRIPE_SECRET_KEY
-  const { pricingTableId, configured } = pricingTableFor(activity)
-  if (!secret || !configured) return []
+  if (!secret || !isPricingTableId(pricingTableId)) return []
   const response = await fetch(`https://api.stripe.com/v1/pricing_tables/${pricingTableId}`, {
     headers: { Authorization: `Bearer ${secret}` },
   })
@@ -85,6 +90,12 @@ export async function pricingTableOffers(activity: ClassSlug): Promise<ClassOffe
     if (!row.startsAt) return false
     return new Date(row.startsAt).getTime() > now
   })
+}
+
+export async function pricingTableOffers(activity: ClassSlug): Promise<ClassOffer[]> {
+  const { pricingTableId, configured } = pricingTableFor(activity)
+  if (!configured) return []
+  return offersFromPricingTable(pricingTableId, activity)
 }
 
 const months: Record<string, number> = {

@@ -44,7 +44,7 @@ const text = {
   },
 }
 
-export function StripePricingTable({ activity, publishableKey, pricingTableId, priceId = '' }: { activity: ClassSlug; publishableKey: string; pricingTableId: string; priceId?: string }) {
+export function StripePricingTable({ activity, publishableKey, pricingTableId, priceId = '', storyId = '' }: { activity: ClassSlug; publishableKey: string; pricingTableId: string; priceId?: string; storyId?: string }) {
   const { lang } = useLang()
   const t = text[lang]
   const className = classes[activity][lang]
@@ -73,12 +73,13 @@ export function StripePricingTable({ activity, publishableKey, pricingTableId, p
   useEffect(() => {
     if (!saved || payFor) return
     let active = true
-    fetch(`/api/stripe/dates?activity=${activity}`).then(async (response) => {
+    const storyQuery = storyId ? `&story=${storyId}` : ''
+    fetch(`/api/stripe/dates?activity=${activity}${storyQuery}`).then(async (response) => {
       if (!active) return
       setOffers(response.ok ? await response.json() : [])
     }).catch(() => { if (active) setOffers([]) })
     return () => { active = false }
-  }, [saved, payFor, activity])
+  }, [saved, payFor, activity, storyId])
 
   useEffect(() => {
     if (!saved || !payFor) return
@@ -86,7 +87,7 @@ export function StripePricingTable({ activity, publishableKey, pricingTableId, p
     fetch('/api/stripe/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ activity, priceId: payFor, childIds: saved.map((item) => item.id) }),
+      body: JSON.stringify({ activity, priceId: payFor, childIds: saved.map((item) => item.id), storyId: storyId || undefined }),
     }).then(async (response) => {
       const payload = await response.json().catch(() => null) as { url?: string; names?: string[] } | null
       if (!active) return
@@ -108,7 +109,7 @@ export function StripePricingTable({ activity, publishableKey, pricingTableId, p
       setBusy(false)
     })
     return () => { active = false }
-  }, [saved, payFor, activity, t.failed, t.already])
+  }, [saved, payFor, activity, storyId, t.failed, t.already])
 
   const toggleChild = (name: string) => {
     setPicked((current) => {

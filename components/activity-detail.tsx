@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 import { GrowDetail } from '@/components/grow-detail'
 import { LettersDetail } from '@/components/letters-detail'
 import { ScrollToTop } from '@/components/scroll-to-top'
-import { StoryCarousel, firstFutureStoryIndex } from '@/components/story-carousel'
+import { StoryCarousel, firstFutureStoryIndex, storyDatesFromOffers, type StorySlide } from '@/components/story-carousel'
 import { useLang } from '@/components/language'
 import { authClient } from '@/lib/auth-client'
 import { checkoutPath, isClassSlug } from '@/lib/classes'
@@ -139,27 +139,77 @@ export function ActivityDetail({ slug }: { slug: string }) {
   const item = data[slug as keyof typeof data] ?? data.grow
   const copy = item[lang]
   const story = slug === 'storytelling'
-  const [storyIndex, setStoryIndex] = useState(firstFutureStoryIndex)
+  const [storySlides, setStorySlides] = useState<StorySlide[] | null>(story ? null : [])
+  const [storyIndex, setStoryIndex] = useState(0)
   const [offers, setOffers] = useState<Offer[] | null>(null)
   const register = isClassSlug(slug) ? checkoutPath(slug) : '/#activities'
   const href = session || !isClassSlug(slug) ? register : `/register?next=${encodeURIComponent(register)}`
-  const label = slug === 'grow' || slug === 'live-letters' ? (lang === 'en' ? 'Enroll' : 'Записаться') : (lang === 'en' ? 'To register' : 'Записаться')
+  const label = slug === 'grow' || slug === 'live-letters' || story ? (lang === 'en' ? 'Enroll' : 'Записаться') : (lang === 'en' ? 'To register' : 'Записаться')
   const noDates = lang === 'en' ? 'No available classes right now. Come back later.' : 'Сейчас нет доступных занятий. Загляните позже.'
+  const noPosters = lang === 'en' ? 'No storytelling posters right now. Come back later.' : 'Пока нет афиш сторителлинга. Загляните позже.'
 
   useEffect(() => {
-    if (!isClassSlug(slug)) return
+    if (!isClassSlug(slug) || story) return
     let active = true
     fetch(`/api/stripe/dates?activity=${slug}`).then(async (response) => {
       if (!active) return
       setOffers(response.ok ? await response.json() : [])
     }).catch(() => { if (active) setOffers([]) })
     return () => { active = false }
-  }, [slug])
+  }, [slug, story])
 
-  const signup = !story && (offers && offers.length > 0 ? (
+  useEffect(() => {
+    if (!story) return
+    let active = true
+    fetch('/api/stories').then(async (response) => {
+      if (!active) return
+      const rows = response.ok ? await response.json() as {
+        id: string
+        titleRu: string
+        titleEn: string
+        stripePricingTableId: string
+        imageUrl: string
+        endsAt: string
+      }[] : []
+      const slides = rows.map((row) => ({
+        id: row.id,
+        src: row.imageUrl,
+        until: row.endsAt,
+        ru: row.titleRu,
+        en: row.titleEn,
+        stripePricingTableId: row.stripePricingTableId || '',
+      }))
+      setStorySlides(slides)
+      setStoryIndex(firstFutureStoryIndex(slides))
+    }).catch(() => {
+      if (!active) return
+      setStorySlides([])
+    })
+    return () => { active = false }
+  }, [story])
+
+  const currentStory = story && storySlides?.length ? (storySlides[storyIndex] ?? storySlides[0]) : null
+
+  useEffect(() => {
+    if (!story) return
+    if (!currentStory?.id) {
+      setOffers([])
+      return
+    }
+    let active = true
+    setOffers(null)
+    fetch(`/api/stripe/dates?activity=storytelling&story=${currentStory.id}`).then(async (response) => {
+      if (!active) return
+      setOffers(response.ok ? await response.json() : [])
+    }).catch(() => { if (active) setOffers([]) })
+    return () => { active = false }
+  }, [story, currentStory?.id])
+
+  const signup = offers && offers.length > 0 ? (
     <div className="date-offers">
       {offers.map((offer) => {
-        const next = isClassSlug(slug) ? `${checkoutPath(slug)}&price=${offer.priceId}` : href
+        const storyPart = currentStory?.id ? `&story=${currentStory.id}` : ''
+        const next = isClassSlug(slug) ? `${checkoutPath(slug)}&price=${offer.priceId}${storyPart}` : href
         const offerHref = session ? next : `/register?next=${encodeURIComponent(next)}`
         const text = offerText(offer, lang)
         return (
@@ -170,7 +220,7 @@ export function ActivityDetail({ slug }: { slug: string }) {
         )
       })}
     </div>
-  ) : offers === null ? null : <p className="form-lead date-offers-empty">{noDates}</p>)
+  ) : offers === null ? null : <p className="form-lead date-offers-empty">{noDates}</p>
 
   if (slug === 'grow') {
     return <GrowDetail lang={lang} justRegistered={justRegistered} signup={signup} />
@@ -184,7 +234,18 @@ export function ActivityDetail({ slug }: { slug: string }) {
     <main className="detail-page">
       <ScrollToTop />
       {justRegistered && <p className="register-success detail-success" role="status"><Check size={18} />{lang === 'en' ? `Registration for ${copy.title} was successful.` : `Запись на занятие «${copy.title}» прошла успешно.`}</p>}
-      {story ? <StoryCarousel href={href} lang={lang} index={storyIndex} onIndex={setStoryIndex} /> : item.image && <section className="detail-feature-image is-lead"><img src={item.image} alt={copy.alt} /></section>}
+      {story ? (
+        storySlides === null ? null : (
+          <StoryCarousel
+            slides={storySlides}
+            lang={lang}
+            index={storyIndex}
+            onIndex={setStoryIndex}
+            empty={noPosters}
+            dates={offers ? storyDatesFromOffers(offers, lang) : ''}
+          />
+        )
+      ) : item.image && <section className="detail-feature-image is-lead"><img src={item.image} alt={copy.alt} /></section>}
       <section className="detail-heading">
         <p className="eyebrow">{copy.en}</p>
         <h1>{copy.title}</h1>
