@@ -8,6 +8,7 @@ export async function GET() {
     id: storyEvent.id,
     titleRu: storyEvent.titleRu,
     titleEn: storyEvent.titleEn,
+    stripePricingTableId: storyEvent.stripePricingTableId,
     imageUrl: storyEvent.imageUrl,
     endsAt: storyEvent.endsAt,
   }).from(storyEvent).where(eq(storyEvent.active, true)).orderBy(asc(storyEvent.endsAt))

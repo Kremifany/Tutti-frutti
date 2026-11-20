@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { storyEvent } from '@/lib/schema'
 import { getSession } from '@/lib/session'
+import { isPricingTableId } from '@/lib/stripe'
 import { saveStoryPoster } from '@/lib/story-upload'
 
 async function requireOwner() {
@@ -25,9 +26,13 @@ export async function POST(request: Request) {
 
   const titleRu = String(form.get('titleRu') || '').trim()
   const titleEn = String(form.get('titleEn') || '').trim()
+  const stripePricingTableId = String(form.get('stripePricingTableId') || '').trim()
   const endsAtRaw = String(form.get('endsAt') || '').trim()
   const file = form.get('image')
   if (!titleRu || !titleEn || !/^\d{4}-\d{2}-\d{2}$/.test(endsAtRaw) || !(file instanceof File)) {
+    return NextResponse.json({ error: 'missing' }, { status: 400 })
+  }
+  if (stripePricingTableId && !isPricingTableId(stripePricingTableId)) {
     return NextResponse.json({ error: 'missing' }, { status: 400 })
   }
   const endsAt = new Date(`${endsAtRaw}T23:59:59`)
@@ -45,6 +50,9 @@ export async function POST(request: Request) {
     id: randomUUID(),
     titleRu,
     titleEn,
+    datesRu: '',
+    datesEn: '',
+    stripePricingTableId,
     imageUrl,
     endsAt,
     active: true,

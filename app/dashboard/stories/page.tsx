@@ -8,10 +8,12 @@ const text = {
   ru: {
     owner: 'Кабинет владельца',
     title: 'Сторителлинг',
-    lead: 'Загрузите афишу. На странице занятий родители увидят постеры и даты из Stripe.',
+    lead: 'У каждой афиши свой Stripe pricing table. Даты берутся из названий продуктов Stripe.',
     add: 'Новая афиша',
     titleRu: 'Название (RU)',
     titleEn: 'Название (EN)',
+    stripeTable: 'Stripe pricing table ID',
+    stripeHint: 'Из Stripe Dashboard, например prctbl_… Даты на сайте появятся из названий продуктов в этой таблице.',
     endsAt: 'Показывать до',
     image: 'Постер',
     save: 'Сохранить',
@@ -24,6 +26,7 @@ const text = {
     cancel: 'Отмена',
     hidden: 'Скрыто',
     visible: 'На сайте',
+    noStripe: 'без Stripe',
     failed: 'Не удалось сохранить афишу.',
     uploadFailed: 'Не удалось загрузить изображение.',
     confirmDelete: 'Удалить эту афишу?',
@@ -31,10 +34,12 @@ const text = {
   en: {
     owner: 'Owner account',
     title: 'Storytelling',
-    lead: 'Upload a poster. On the class page parents will see posters and Stripe dates.',
+    lead: 'Each poster has its own Stripe pricing table. Dates come from the Stripe product names.',
     add: 'New poster',
     titleRu: 'Title (RU)',
     titleEn: 'Title (EN)',
+    stripeTable: 'Stripe pricing table ID',
+    stripeHint: 'From the Stripe Dashboard, for example prctbl_… Site dates will come from the product names in that table.',
     endsAt: 'Show until',
     image: 'Poster',
     save: 'Save',
@@ -47,6 +52,7 @@ const text = {
     cancel: 'Cancel',
     hidden: 'Hidden',
     visible: 'On the site',
+    noStripe: 'no Stripe',
     failed: 'Could not save the poster.',
     uploadFailed: 'Could not upload the image.',
     confirmDelete: 'Delete this poster?',
@@ -57,6 +63,7 @@ type StoryRow = {
   id: string
   titleRu: string
   titleEn: string
+  stripePricingTableId: string
   imageUrl: string
   endsAt: string
   active: boolean
@@ -72,6 +79,7 @@ export default function StoriesPage() {
   const [rows, setRows] = useState<StoryRow[] | null>(null)
   const [titleRu, setTitleRu] = useState('')
   const [titleEn, setTitleEn] = useState('')
+  const [stripePricingTableId, setStripePricingTableId] = useState('')
   const [endsAt, setEndsAt] = useState('')
   const [image, setImage] = useState<File | null>(null)
   const [editing, setEditing] = useState<string | null>(null)
@@ -90,6 +98,7 @@ export default function StoriesPage() {
   const resetForm = () => {
     setTitleRu('')
     setTitleEn('')
+    setStripePricingTableId('')
     setEndsAt('')
     setImage(null)
     setEditing(null)
@@ -100,6 +109,7 @@ export default function StoriesPage() {
     setEditing(row.id)
     setTitleRu(row.titleRu)
     setTitleEn(row.titleEn)
+    setStripePricingTableId(row.stripePricingTableId || '')
     setEndsAt(dayValue(row.endsAt))
     setImage(null)
     setError('')
@@ -119,6 +129,7 @@ export default function StoriesPage() {
     const body = new FormData()
     body.set('titleRu', titleRu.trim())
     body.set('titleEn', titleEn.trim())
+    body.set('stripePricingTableId', stripePricingTableId.trim())
     body.set('endsAt', endsAt)
     if (image) body.set('image', image)
     const response = await fetch(editing ? `/api/owner/stories/${editing}` : '/api/owner/stories', {
@@ -165,6 +176,11 @@ export default function StoriesPage() {
           <p className="eyebrow">{editing ? t.edit : t.add}</p>
           <label>{t.titleRu}<input value={titleRu} onChange={(event) => setTitleRu(event.target.value)} /></label>
           <label>{t.titleEn}<input value={titleEn} onChange={(event) => setTitleEn(event.target.value)} /></label>
+          <label>
+            {t.stripeTable}
+            <input value={stripePricingTableId} onChange={(event) => setStripePricingTableId(event.target.value)} placeholder="prctbl_…" />
+            <small className="story-field-hint">{t.stripeHint}</small>
+          </label>
           <label>{t.endsAt}<input type="date" value={endsAt} onChange={(event) => setEndsAt(event.target.value)} /></label>
           <label>{t.image}<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => setImage(event.target.files?.[0] || null)} /></label>
           {error && <p className="form-error">{error}</p>}
@@ -184,7 +200,7 @@ export default function StoriesPage() {
               <img src={row.imageUrl} alt={lang === 'en' ? row.titleEn : row.titleRu} />
               <div>
                 <strong>{lang === 'en' ? row.titleEn : row.titleRu}</strong>
-                <small>{dayValue(row.endsAt)} · {row.active ? t.visible : t.hidden}</small>
+                <small>{dayValue(row.endsAt)} · {row.active ? t.visible : t.hidden} · {row.stripePricingTableId || t.noStripe}</small>
               </div>
               <div className="story-admin-actions">
                 <button type="button" className="link-button" onClick={() => startEdit(row)}>{t.edit}</button>
